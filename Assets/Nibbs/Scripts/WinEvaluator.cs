@@ -27,7 +27,7 @@ namespace Nibbs
                     {
                         columnsToFall.Add(i.Value);
                     }
-                    NibbsHandler.EventIn_DestroyNibb.Invoke(i);
+                    NibbsHandler.EventIn_DisableNibb.Invoke(i);
                 });
                 NibbsHandler.EventIn_LetColumnsFall.Invoke(columnsToFall);
                 pointsCount += (nibbsToDestroy.Count * nibbsToDestroy.Count);

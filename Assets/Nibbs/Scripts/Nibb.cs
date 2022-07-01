@@ -1,30 +1,41 @@
 
 using Autohand;
+using CodeEvents;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace Nibbs
 {
+    internal class EventIn_LetNibbFall : EventSystem { }
+    internal class EventIn_SetColor : EventSystem<int> { }
     internal class Nibb : MonoBehaviour
     {
+        internal EventIn_LetNibbFall EventIn_LetNibbFall = new EventIn_LetNibbFall();
+        internal EventIn_SetColor EventIn_SetColor = new EventIn_SetColor();
+
+        [SerializeField] private List<Material> materials = new List<Material>();
+        [SerializeField] private Material matWhite = null;
         private SphereCollider myCollider = null;
         private Rigidbody myRigidbody = null;
         private Transform myTransform = null;
         private MeshRenderer myRenderer = null;
         private DistanceGrabbable distanceGrabbable = null;
-        [SerializeField] private List<Material> materials = new List<Material>();
-        [SerializeField] private Material matWhite = null;
-        private int currentColor = 0;
+        
         private float scaling = 0f;
         private List<Nibb> neighbors = new List<Nibb>();
         private string currentTag = string.Empty;
+        private bool isFalling = false;
+
         internal int lineNr { get; private set; } = 0;
         internal int indexInLine { get; private set; } = 0;
-        private bool isFalling = false;
+        internal int VarOut_CurrentColor { get; private set; } = 0;
 
         internal void Init(float scaling, int lineNr, int indexInLine)
         {
+            EventIn_LetNibbFall.AddListener(LetNibbFall);
+            EventIn_SetColor.AddListener(SetColor);
+
             this.lineNr = lineNr;
             this.indexInLine = indexInLine;
             this.scaling = scaling;
@@ -35,14 +46,14 @@ namespace Nibbs
             this.distanceGrabbable = this.GetComponent<DistanceGrabbable>();
             this.distanceGrabbable.OnPull.AddListener(OnPull);
 
-            this.LetNibbsFallByPhysics();
+            this.LetNibbFall();
 
             this.currentTag = this.gameObject.tag;
 
             this.SetRandomColor();
         }
 
-        internal void LetNibbsFallByPhysics()
+        private void LetNibbFall()
         {
             this.myRigidbody.isKinematic = false;
             this.myRigidbody.AddRelativeForce(new Vector3(0f, -10f, 0f), ForceMode.Impulse);
@@ -53,15 +64,21 @@ namespace Nibbs
         private IEnumerator StopFalling()
         {
             yield return new WaitForSeconds(3f);
+            //yield return new WaitForEndOfFrame();
+            yield return new WaitForFixedUpdate();
+            
             NibbsHandler.EventOut_OnUpdate.AddListener(OnUpdate);
             this.isFalling = false;
         }
 
         private void SetRandomColor()
         {
-            this.currentColor = Random.Range(0, this.materials.Count-1);
+            SetColor(Random.Range(0, this.materials.Count-1));
+        }
 
-            this.myRenderer.material = this.materials[this.currentColor];
+        private void SetColor(int color) {
+            this.VarOut_CurrentColor = color;
+            this.myRenderer.material = this.materials[this.VarOut_CurrentColor];
         }
 
         internal void OnPull(Hand arg0, Grabbable arg1)
@@ -111,9 +128,8 @@ namespace Nibbs
             {
                 if ((hit.collider != null) && (hit.collider.tag.Equals(this.currentTag))) {
                     Nibb neighbor = hit.transform.GetComponent<Nibb>();
-                    if (neighbor.currentColor.Equals(this.currentColor))
+                    if (neighbor.VarOut_CurrentColor.Equals(this.VarOut_CurrentColor))
                     {
-                        Debug.Log("NEIGHBOR: " + neighbor.name);
                         this.neighbors.Add(neighbor);
                     }
                 }
