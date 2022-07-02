@@ -37,7 +37,7 @@ namespace Nibbs
             EventIn_DisableNibb.AddListener(DisableNibb);
             EventIn_LetColumnsFall.AddListener(LetColumnsFall);
             EventIn_SetNibbState.AddListener(SetNibbState);
-            this.ballRotator.Init(nibbsPerLine);
+            this.ballRotator.Init(/*nibbsPerLine*/);
             this.customNibbsGrids.Init();
             this.CreateLines(linesCount);
             StartCoroutine(this.InstantiateInCirclesDelayed(Vector3.zero, nibbsPerLine, radius));

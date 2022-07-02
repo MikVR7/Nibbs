@@ -152,8 +152,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 396173f1924260040b02647a5762c5a7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  prefabRotatorColumn: {fileID: 1960431357288933156, guid: 72f73346abb3bcc488720f7121f26afa,
-    type: 3}
+  prefabParentGroup: {fileID: 0}
 --- !u!4 &316225469
 Transform:
   m_ObjectHideFlags: 0
