@@ -1,77 +1,71 @@
 using CodeEvents;
+using Sirenix.OdinInspector;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace Nibbs
 {
-    internal class EventIn_RotateForDebugging : EventSystem { }
     internal class EventIn_CloseColumnGaps : EventSystem { }
-    internal class BallRotator : MonoBehaviour
+    internal class EventIn_FinishedRotatingGroup : EventSystem<int> { }
+    internal class BallRotator : SerializedMonoBehaviour
     {
         internal static EventIn_CloseColumnGaps EventIn_CloseColumnGaps= new EventIn_CloseColumnGaps();
-        internal static EventIn_RotateForDebugging EventIn_RotateForDebugging = new EventIn_RotateForDebugging();
+        internal static EventIn_FinishedRotatingGroup EventIn_FinishedRotatingGroup = new EventIn_FinishedRotatingGroup();
 
-        //[SerializeField] private GameObject prefabRotatorColumn = null;
-        //private List<BallRotatorColumn> rotatorColumns = new List<BallRotatorColumn>();
         [SerializeField] private GameObject prefabParentGroup = null;
-        private List<BallRotatorParentGroup> ballRotatorParentGroups = new List<BallRotatorParentGroup>();
-        private List<List<int>> columnGroups = new List<List<int>>();
-        private Transform myTransform = null;
+        [SerializeField] internal AnimationCurve CurveRotationAnim { get; private set; } = null;
+        [SerializeField] internal float RotationDuration { get; private set; } = 1f;
 
-        internal void Init(/*int columns*/)
+        private List<BallRotatorParentGroup> parentGroups = new List<BallRotatorParentGroup>();
+        private List<int> gaps = new List<int>();
+        private Transform myTransform = null;
+        private List<int> rotatingParentGroups = new List<int>();
+
+        internal void Init()
         {
             EventIn_CloseColumnGaps.AddListener(CloseColumnGaps);
-            EventIn_RotateForDebugging.AddListener(RotateForDebugging);
+            EventIn_FinishedRotatingGroup.AddListener(FinishedRotatingGroup);
             this.myTransform = this.GetComponent<Transform>();
-            //for (int i = 0; i < columns; i++)
-            //{
-            //    this.CreateRotatorColumn(i);
-            //}
         }
-
-        //private void CreateRotatorColumn(int index)
-        //{
-        //    GameObject goRotatorColumn = Instantiate(this.prefabRotatorColumn);
-        //    goRotatorColumn.name = "rot_col_" + index;
-        //    Transform tRotatorColumn = goRotatorColumn.GetComponent<Transform>();
-        //    tRotatorColumn.parent = tRotatorColumn;
-        //    tRotatorColumn.localPosition = Vector3.zero;
-        //    BallRotatorColumn rotatorColumn = goRotatorColumn.GetComponent<BallRotatorColumn>();
-        //    rotatorColumn.Init(index);
-        //    this.rotatorColumns.Add(rotatorColumn);
-        //}
 
         private void CloseColumnGaps()
         {
-            this.FindNibbsGroups();
-            this.CreateParentGroups();
-            this.SetNibbsParentToGroup();
+            List<List<int>> columnGroups = this.FindNibbsGroups();
+            this.SetNibbsParentToGroup(columnGroups);
+            this.RotateGroups();
         }
 
-        private void FindNibbsGroups()
+        private List<List<int>> FindNibbsGroups()
         {
             List<List<int>> nibbsGrid = NibbsHandler.VarOut_GetNibbsGrid();
             List<List<int>> columnGroups = new List<List<int>>();
+            this.gaps.Clear();
 
             // find group columns
             bool groupFound = false;
             for (int j = 0; j < nibbsGrid[0].Count; j++)
             {
+                // started a new group
                 if(!groupFound && nibbsGrid[0][j] >= 0)
                 {
                     columnGroups.Add(new List<int>() { j });
-                    Debug.Log("ADD FIRST: " + j);
                     groupFound = true;
                 }
+                // continued an existing group
                 else if(groupFound && nibbsGrid[0][j] >= 0)
                 {
                     columnGroups[columnGroups.Count - 1].Add(j);
-                    Debug.Log("ADD ANOTHER: " + columnGroups.Count + " " + j);
                 }
-                else if (groupFound && nibbsGrid[0][j] < 0)
+                // entered a new gap OR it's the first column and that is already a gap
+                else if ((groupFound && nibbsGrid[0][j] < 0) || (!groupFound && (nibbsGrid[0][j] < 0) && (gaps.Count == 0)))
                 {
+                    gaps.Add(1);
                     groupFound = false;
-                    Debug.Log("NO GROUP...");
+                }
+                // continued an existing gap
+                else if (!groupFound && nibbsGrid[0][j] < 0)
+                {
+                    gaps[gaps.Count - 1]++;
                 }
             }
             // check if the last element is connected to the first one - this is also one group
@@ -84,43 +78,88 @@ namespace Nibbs
                 }
                 columnGroups.RemoveAt(columnGroups.Count-1);
             }
-
-
-            //// Debug output
-            //for(int i = 0; i < columnGroups.Count; i++)
-            //{
-            //    Debug.Log("Group: " + i);
-            //    for(int j = 0; j < columnGroups[i].Count; j++)
-            //    {
-            //        Debug.Log("G " + i + " - col:" + columnGroups[i][j]);
-            //    }
-            //}
+            return columnGroups;
         }
 
-        private void CreateParentGroups()
+        private void SetNibbsParentToGroup(List<List<int>> columnGroups)
         {
-            this.ballRotatorParentGroups.Clear();
+            this.parentGroups.Clear();
             for (int i = 0; i < columnGroups.Count; i++)
             {
-                GameObject goRotatorGroup = Instantiate(this.prefabParentGroup);
-                goRotatorGroup.name = "rot_group_" + i;
-                Transform tRotatorGroup = goRotatorGroup.GetComponent<Transform>();
-                tRotatorGroup.parent = myTransform;
-                tRotatorGroup.localPosition = Vector3.zero;
-                BallRotatorParentGroup rotatorGroup = goRotatorGroup.GetComponent<BallRotatorParentGroup>();
-                rotatorGroup.Init();
-                this.ballRotatorParentGroups.Add(rotatorGroup);
+                BallRotatorParentGroup parentGroup = this.CreateParentGroup(i, columnGroups[i]);
+                for(int j = 0; j < columnGroups[i].Count; j++)
+                {
+                    List<List<int>> nibbsGrid = NibbsHandler.VarOut_GetNibbsGrid();
+                    int column = columnGroups[i][j];
+                    for (int k = 0; k < nibbsGrid.Count; k++)
+                    {
+                        if (nibbsGrid[k][column] >= 0)
+                        {
+                            Transform originalParent = NibbsHandler.VarOut_GetNibbsParent(k, column);
+                            parentGroup.EventIn_SaveOriginalParent.Invoke(k, column, originalParent);
+                            NibbsHandler.EventIn_SetNibbsParent.Invoke(k, column, parentGroup.VarOut_MyTransform);
+                        }
+                    }
+                }
+                this.parentGroups.Add(parentGroup);
             }
         }
 
-        private void SetNibbsParentToGroup()
+        private BallRotatorParentGroup CreateParentGroup(int index, List<int> columnGroup)
         {
-
+            GameObject goRotatorGroup = Instantiate(this.prefabParentGroup);
+            BallRotatorParentGroup rotatorGroup = goRotatorGroup.GetComponent<BallRotatorParentGroup>();
+            rotatorGroup.Init(index, columnGroup, myTransform, this.CurveRotationAnim);
+            return rotatorGroup;
         }
 
-        private void RotateForDebugging()
+        private void RotateGroups()
         {
+            // no gaps found - don't rotate
+            if(this.gaps.Count == 0) { return; }
 
+            // add first gap amount
+            int rotationAmount = this.gaps[0];
+            int gapsCount = 0;
+            this.rotatingParentGroups.Clear();
+            // check if first group contains column with index 0
+            // in that case this group doesn't need to be rotated
+            for(int i = (this.parentGroups[0].VarOut_ColumnGroup.Contains(0))?1:0; i < this.parentGroups.Count; i++)
+            {
+                this.rotatingParentGroups.Add(this.parentGroups[i].VarOut_Index);
+                this.parentGroups[i].EventIn_RotateByDegrees.Invoke(rotationAmount * NibbsHandler.VarOut_GetDegreePerColumn, this.RotationDuration);
+                rotationAmount += this.gaps[++gapsCount];
+            }
+        }
+
+        private void FinishedRotatingGroup(int groupIndex)
+        {
+            if(this.rotatingParentGroups.Contains(groupIndex))
+            {
+                this.rotatingParentGroups.Remove(groupIndex);
+                if(this.rotatingParentGroups.Count == 0)
+                {
+                    this.ResetOriginalNibbsParents();
+                }
+            }
+        }
+
+        private void ResetOriginalNibbsParents()
+        {
+            for(int i = 0; i < this.parentGroups.Count; i++)
+            {
+                for(int j = 0; j < this.parentGroups[i].VarOut_NibbsOriginalParents.Count; j++)
+                {
+                    BallRotatorParentGroup.NibbOriginalParent nibbOriginalParent = this.parentGroups[i].VarOut_NibbsOriginalParents[j];
+                    NibbsHandler.EventIn_SetNibbsParent.Invoke(
+                        nibbOriginalParent.CircleNr,
+                        nibbOriginalParent.IndexInCircle,
+                        nibbOriginalParent.OriginalParent
+                    );
+                }
+            }
+            this.parentGroups.Clear();
+            this.gaps.Clear();
         }
     }
 }

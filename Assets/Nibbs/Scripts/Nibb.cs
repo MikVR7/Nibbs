@@ -18,7 +18,7 @@ namespace Nibbs
         [SerializeField] private Material matWhite = null;
         private SphereCollider myCollider = null;
         private Rigidbody myRigidbody = null;
-        private Transform myTransform = null;
+        internal Transform VarOut_MyTransform { get; private set; } = null;
         private MeshRenderer myRenderer = null;
         private DistanceGrabbable distanceGrabbable = null;
         
@@ -41,7 +41,7 @@ namespace Nibbs
             this.scaling = scaling;
             this.myCollider = this.GetComponent<SphereCollider>();
             this.myRigidbody = this.GetComponent<Rigidbody>();
-            this.myTransform = this.GetComponent<Transform>();
+            this.VarOut_MyTransform = this.GetComponent<Transform>();
             this.myRenderer = this.GetComponent<MeshRenderer>();
             this.distanceGrabbable = this.GetComponent<DistanceGrabbable>();
             this.distanceGrabbable.OnPull.AddListener(OnPull);
@@ -107,6 +107,7 @@ namespace Nibbs
                 {
                     this.myRigidbody.isKinematic = true;
                     NibbsHandler.EventOut_OnUpdate.RemoveListener(OnUpdate);
+                    NibbsHandler.EventIn_NibbFinishedFalling.Invoke(new KeyValuePair<int, int>(this.lineNr, this.indexInLine));
                 }
             }
         }
@@ -114,16 +115,16 @@ namespace Nibbs
         private void GetNeighbors()
         {
             this.neighbors.Clear();
-            this.ShootRay(this.myTransform.TransformDirection(Vector3.up));
-            this.ShootRay(this.myTransform.TransformDirection(Vector3.down));
-            this.ShootRay(this.myTransform.TransformDirection(Vector3.left));
-            this.ShootRay(this.myTransform.TransformDirection(Vector3.right));
+            this.ShootRay(this.VarOut_MyTransform.TransformDirection(Vector3.up));
+            this.ShootRay(this.VarOut_MyTransform.TransformDirection(Vector3.down));
+            this.ShootRay(this.VarOut_MyTransform.TransformDirection(Vector3.left));
+            this.ShootRay(this.VarOut_MyTransform.TransformDirection(Vector3.right));
         }
 
         private void ShootRay(Vector3 direction)
         {
             RaycastHit hit;
-            Ray ray = new Ray(this.myTransform.position, direction);
+            Ray ray = new Ray(this.VarOut_MyTransform.position, direction);
             if (Physics.Raycast(ray, out hit, this.scaling))
             {
                 if ((hit.collider != null) && (hit.collider.tag.Equals(this.currentTag))) {

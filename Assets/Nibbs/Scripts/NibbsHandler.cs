@@ -8,6 +8,8 @@ namespace Nibbs
     internal class EventIn_DisableNibb : EventSystem<KeyValuePair<int, int>> { }
     internal class EventIn_LetColumnsFall : EventSystem<List<int>> { }
     internal class EventIn_SetNibbState : EventSystem<int, int, int, bool> { }
+    internal class EventIn_SetNibbsParent : EventSystem<int, int, Transform> { }
+    internal class EventIn_NibbFinishedFalling : EventSystem<KeyValuePair<int, int>> { }
     internal class EventOut_OnUpdate : EventSystem { }
     internal class NibbsHandler : MonoBehaviour
     {
@@ -15,6 +17,8 @@ namespace Nibbs
         internal static EventIn_LetColumnsFall EventIn_LetColumnsFall = new EventIn_LetColumnsFall();
         internal static EventOut_OnUpdate EventOut_OnUpdate = new EventOut_OnUpdate();
         internal static EventIn_SetNibbState EventIn_SetNibbState = new EventIn_SetNibbState();
+        internal static EventIn_SetNibbsParent EventIn_SetNibbsParent = new EventIn_SetNibbsParent();
+        internal static EventIn_NibbFinishedFalling EventIn_NibbFinishedFalling = new EventIn_NibbFinishedFalling();
 
         private static NibbsHandler Instance = null;
         [SerializeField] private GameObject prefabNibb = null;
@@ -26,10 +30,17 @@ namespace Nibbs
         [SerializeField] private int linesCount = 0;
         [SerializeField] private float heightOffset = 0f;
         [SerializeField] private BallRotator ballRotator = null;
+
+        [Header("Debugging")]
+        [SerializeField] private int debugLineNr = 0;
+        [SerializeField] private int debugIndexInCircle = 0;
         private List<Transform> nibbsLines = new List<Transform>();
         private List<List<Nibb>> nibbs = new List<List<Nibb>>();
+        private List<KeyValuePair<int, int>> nibbsFalling = new List<KeyValuePair<int, int>>();
         private WinEvaluator winEvaluator = new WinEvaluator();
         private CustomNibbsGrids customNibbsGrids = new CustomNibbsGrids();
+
+        internal static float VarOut_GetDegreePerColumn { get; private set; } = 0f;
 
         private void Awake()
         {
@@ -37,11 +48,16 @@ namespace Nibbs
             EventIn_DisableNibb.AddListener(DisableNibb);
             EventIn_LetColumnsFall.AddListener(LetColumnsFall);
             EventIn_SetNibbState.AddListener(SetNibbState);
+            EventIn_SetNibbsParent.AddListener(SetNibbsParent);
+            EventIn_NibbFinishedFalling.AddListener(NibbFinishedFalling);
             this.ballRotator.Init(/*nibbsPerLine*/);
             this.customNibbsGrids.Init();
             this.CreateLines(linesCount);
             StartCoroutine(this.InstantiateInCirclesDelayed(Vector3.zero, nibbsPerLine, radius));
             this.winEvaluator.Init();
+
+            // set on level start:
+            VarOut_GetDegreePerColumn = 360f / Instance.nibbsPerLine;
         }
 
         private void Update()
@@ -61,6 +77,12 @@ namespace Nibbs
             if(Input.GetKeyDown(KeyCode.C))
             {
                 BallRotator.EventIn_CloseColumnGaps.Invoke();
+            }
+            if(Input.GetKeyDown(KeyCode.H))
+            {
+                List<KeyValuePair<int, int>> nibbsDestroyed = new List<KeyValuePair<int, int>>();
+                nibbsDestroyed = this.nibbs[debugLineNr][debugIndexInCircle].DestroySelfAndNeighbors(nibbsDestroyed);
+                WinEvaluator.EventIn_EvaluateClickGroup.Invoke(nibbsDestroyed);
             }
             if(Input.GetKeyDown(KeyCode.Alpha1))
             {
@@ -143,7 +165,24 @@ namespace Nibbs
                     if (this.nibbs[i][columnsToFall[j]].gameObject.activeSelf)
                     {
                         this.nibbs[i][columnsToFall[j]].EventIn_LetNibbFall.Invoke();
+                        this.nibbsFalling.Add(new KeyValuePair<int, int>(i, columnsToFall[j]));
                     }
+                }
+            }
+            if(this.nibbsFalling.Count == 0)
+            {
+                //BallRotator.EventIn_CloseColumnGaps.Invoke();
+            }
+        }
+
+        private void NibbFinishedFalling(KeyValuePair<int, int> nibbIndices)
+        {
+            if(this.nibbsFalling.Contains(nibbIndices))
+            {
+                this.nibbsFalling.Remove(nibbIndices);
+                if(this.nibbsFalling.Count == 0)
+                {
+                    //BallRotator.EventIn_CloseColumnGaps.Invoke();
                 }
             }
         }
@@ -151,7 +190,7 @@ namespace Nibbs
         internal static List<List<int>> VarOut_GetNibbsGrid()
         {
             List<List<int>> grid = new List<List<int>>();
-            for(int i = 0; i < Instance.nibbs.Count; i++)
+            for (int i = 0; i < Instance.nibbs.Count; i++)
             {
                 List<int> line = new List<int>();
                 for (int j = 0; j < Instance.nibbs[i].Count; j++)
@@ -167,6 +206,16 @@ namespace Nibbs
         {
             this.nibbs[lineNr][indexInLine].EventIn_SetColor.Invoke(color);
             this.nibbs[lineNr][indexInLine].gameObject.SetActive(enabled);
+        }
+
+        // nibbs parenting
+        internal static Transform VarOut_GetNibbsParent(int lineNr, int indexInLine)
+        {
+            return Instance.nibbs[lineNr][indexInLine].VarOut_MyTransform.parent;
+        }
+        private void SetNibbsParent(int lineNr, int indexInLine, Transform tParent)
+        {
+            this.nibbs[lineNr][indexInLine].VarOut_MyTransform.parent = tParent;
         }
     }
 }
