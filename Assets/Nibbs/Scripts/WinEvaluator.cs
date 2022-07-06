@@ -2,13 +2,13 @@ using CodeEvents;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static Nibbs.Events;
 
 namespace Nibbs
 {
-    internal class EventIn_EvaluateClickGroup : EventSystem<List<KeyValuePair<int, int>>> { }
     internal class WinEvaluator
     {
-        internal static EventIn_EvaluateClickGroup EventIn_EvaluateClickGroup = new EventIn_EvaluateClickGroup();
+        internal EventIn_EvaluateClickGroup EventIn_EvaluateClickGroup = new EventIn_EvaluateClickGroup();
         private int pointsCount = 0;
 
         internal void Init()
@@ -27,9 +27,9 @@ namespace Nibbs
                     {
                         columnsToFall.Add(i.Value);
                     }
-                    NibbsHandler.EventIn_DisableNibb.Invoke(i);
+                    //NibbsGameHandler.EventIn_DisableNibb.Invoke(i);
                 });
-                NibbsHandler.EventIn_LetColumnsFall.Invoke(columnsToFall);
+                //NibbsGameHandler.EventIn_LetColumnsFall.Invoke(columnsToFall);
                 pointsCount += (nibbsToDestroy.Count * nibbsToDestroy.Count);
             }
         }

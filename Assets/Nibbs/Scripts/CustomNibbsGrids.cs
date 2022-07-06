@@ -11,6 +11,7 @@ namespace Nibbs
         SetCurrentSingleColor = 0,
         SetCurrentOneColumnDifferent = 1,
         SetCurrentTestClosingGaps = 2,
+        SetCurrentTestClosingGaps2 = 3,
     }
     internal class CustomNibbsGrids
     {
@@ -28,43 +29,77 @@ namespace Nibbs
                 case NibbsGrid.SetCurrentSingleColor: SetCurrentSingleColor(); break;
                 case NibbsGrid.SetCurrentOneColumnDifferent: SetCurrentOneColumnDifferent(); break;
                 case NibbsGrid.SetCurrentTestClosingGaps: SetCurrentTestClosingGaps(); break;
+                case NibbsGrid.SetCurrentTestClosingGaps2: SetCurrentTestClosingGaps2(); break;
             }
         }
 
         private void SetCurrentSingleColor()
         {
-            List<List<int>> nibbsGrid = NibbsHandler.VarOut_GetNibbsGrid();
-            for (int i = 0; i < nibbsGrid.Count; i++)
-            {
-                for (int j = 0; j < nibbsGrid[i].Count; j++)
-                {
-                    NibbsHandler.EventIn_SetNibbState.Invoke(i, j, 1, true);
-                }
-            }
+            // TODO: 
+            //List<List<int>> nibbsGrid = NibbsGameHandler.VarOut_GetNibbsGrid();
+            //for (int i = 0; i < nibbsGrid.Count; i++)
+            //{
+            //    for (int j = 0; j < nibbsGrid[i].Count; j++)
+            //    {
+            //        NibbsGameHandler.EventIn_SetNibbState.Invoke(i, j, 1, true);
+            //    }
+            //}
         }
 
         private void SetCurrentOneColumnDifferent()
         {
-            List<List<int>> nibbsGrid = NibbsHandler.VarOut_GetNibbsGrid();
-            for (int i = 0; i < nibbsGrid.Count; i++)
-            {
-                for (int j = 0; j < nibbsGrid[i].Count; j++)
-                {
-                    NibbsHandler.EventIn_SetNibbState.Invoke(i, j, (j == 1) ? 1 : 2, true);
-                }
-            }
+            // TODO: 
+            //List<List<int>> nibbsGrid = NibbsGameHandler.VarOut_GetNibbsGrid();
+            //for (int i = 0; i < nibbsGrid.Count; i++)
+            //{
+            //    for (int j = 0; j < nibbsGrid[i].Count; j++)
+            //    {
+            //        NibbsGameHandler.EventIn_SetNibbState.Invoke(i, j, (j == 1) ? 1 : 2, true);
+            //    }
+            //}
         }
 
         private void SetCurrentTestClosingGaps()
         {
-            List<List<int>> nibbsGrid = NibbsHandler.VarOut_GetNibbsGrid();
-            for (int i = 0; i < nibbsGrid.Count; i++)
-            {
-                for (int j = 0; j < nibbsGrid[i].Count; j++)
-                {
-                    NibbsHandler.EventIn_SetNibbState.Invoke(i, j, ((j == 1) || (j == 4) || (j == 7)) ? 1 : 2, true);
-                }
-            }
+            // TODO: 
+            //List<List<int>> nibbsGrid = NibbsGameHandler.VarOut_GetNibbsGrid();
+            //for (int i = 0; i < nibbsGrid.Count; i++)
+            //{
+            //    for (int j = 0; j < nibbsGrid[i].Count; j++)
+            //    {
+            //        NibbsGameHandler.EventIn_SetNibbState.Invoke(i, j, ((j == 1) || (j == 4) || (j == 7)) ? 1 : 2, true);
+            //    }
+            //}
+        }
+
+        private void SetCurrentTestClosingGaps2()
+        {
+            // TODO: 
+            //List<List<int>> nibbsGrid = NibbsGameHandler.VarOut_GetNibbsGrid();
+            //for (int i = 0; i < nibbsGrid.Count; i++)
+            //{
+            //    for (int j = 0; j < nibbsGrid[i].Count; j++)
+            //    {
+            //        NibbsGameHandler.EventIn_SetNibbState.Invoke(i, j, (
+            //            (j == 0) ||
+            //            (j == 1) ||
+            //            (j == 2) ||
+            //            (j == 3) ||
+            //            (j == 4) ||
+
+            //            (j == 7) ||
+            //            (j == 8) ||
+            //            (j == 9) ||
+
+            //            (j == 14) ||
+            //            (j == 15) ||
+            //            (j == 16) ||
+            //            (j == 17) ||
+            //            (j == 18) ||
+            //            (j == 19)
+            //        ) ? 1 : 2, true);
+            //    }
+            //}
         }
     }
 }
