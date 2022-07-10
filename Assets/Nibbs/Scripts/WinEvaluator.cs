@@ -8,7 +8,7 @@ namespace Nibbs
 {
     internal class WinEvaluator
     {
-        internal EventIn_EvaluateClickGroup EventIn_EvaluateClickGroup = new EventIn_EvaluateClickGroup();
+        internal static EventIn_EvaluateClickGroup EventIn_EvaluateClickGroup = new EventIn_EvaluateClickGroup();
         private int pointsCount = 0;
 
         internal void Init()
@@ -16,20 +16,21 @@ namespace Nibbs
             EventIn_EvaluateClickGroup.AddListener(EvaluateClickGroup);
         }
 
-        internal void EvaluateClickGroup(List<KeyValuePair<int, int>> nibbsToDestroy)
+        private void EvaluateClickGroup(List<KeyValuePair<int, int>> nibbsToDestroy)
         {
+            Debug.Log("Nibbs to destroy: " + nibbsToDestroy.Count);
             if (nibbsToDestroy.Count > 1)
             {
                 // collect columns to fall
                 List<int> columnsToFall = new List<int>();
                 nibbsToDestroy.ForEach(i => {
-                    if (!columnsToFall.Contains(i.Value))
+                    if (!columnsToFall.Contains(i.Key))
                     {
-                        columnsToFall.Add(i.Value);
+                        columnsToFall.Add(i.Key);
                     }
-                    //NibbsGameHandler.EventIn_DisableNibb.Invoke(i);
+                    LevelsHandler.EventIn_DestroyNibb.Invoke(i.Key, i.Value);
                 });
-                //NibbsGameHandler.EventIn_LetColumnsFall.Invoke(columnsToFall);
+                LevelsHandler.EventIn_LetColumnsFall.Invoke(columnsToFall);
                 pointsCount += (nibbsToDestroy.Count * nibbsToDestroy.Count);
             }
         }

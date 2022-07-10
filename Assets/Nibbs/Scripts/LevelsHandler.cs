@@ -6,13 +6,15 @@ namespace Nibbs
 {
     internal class LevelsHandler : MonoBehaviour
     {
+        internal static EventIn_SetupLevel EventIn_SetupLevel = new EventIn_SetupLevel();
         internal static EventIn_StartLevel EventIn_StartLevel = new EventIn_StartLevel();
-        internal static EventIn_DisableNibb EventIn_DisableNibb = new EventIn_DisableNibb();
+        internal static EventIn_DestroyNibb EventIn_DestroyNibb = new EventIn_DestroyNibb();
         internal static EventIn_LetColumnsFall EventIn_LetColumnsFall = new EventIn_LetColumnsFall();
-
+        
         private static LevelsHandler Instance = null;
         [SerializeField] private GameObject prefabNibbsColumn = null;
-        private Level currentLevel = new Level();
+        internal static Level VarOut_Level { get; private set; } = new Level();
+        internal static bool VarOut_NibbsAreFalling { get; private set; } = false;
         private Transform myTransform = null;
         private List<NibbsColumn> nibbsColumns = new List<NibbsColumn>();
         private WinEvaluator winEvaluator = new WinEvaluator();
@@ -21,16 +23,24 @@ namespace Nibbs
         {
             Instance = this;
             this.myTransform = this.GetComponent<Transform>();
-            EventIn_DisableNibb.AddListener(DisableNibb);
+            EventIn_DestroyNibb.AddListener(DestroyNibb);
+            EventIn_SetupLevel.AddListener(SetupLevel);
             EventIn_StartLevel.AddListener(StartLevel);
             EventIn_LetColumnsFall.AddListener(LetColumnsFall);
+            VarOut_Level.Init();
             this.winEvaluator.Init();
         }
 
-        private void StartLevel(int levelNr) {
-            LevelData level = this.currentLevel.VarOut_GetLevel(levelNr);
+        private void SetupLevel(int levelNr) {
+            VarOut_Level.EventIn_SetupLevel.Invoke(levelNr);
             this.CleanupPreviousLevel();
-            this.CreateNibbsColumns(level);
+            this.CreateNibbsColumns();
+            this.SetNibbsTypes();
+        }
+
+        private void StartLevel()
+        {
+            this.nibbsColumns.ForEach(i => i.EventIn_StartLevel.Invoke());
         }
 
         private void CleanupPreviousLevel()
@@ -41,27 +51,50 @@ namespace Nibbs
             nibbsColumns.Clear();
         }
 
-        private void CreateNibbsColumns(LevelData level)
+        private void CreateNibbsColumns()
         {
             this.nibbsColumns.Clear();
-            for (int i = 0; i < level.ColumnCount; i++)
+            for (int i = 0; i < VarOut_Level.VarOut_GetLevel().ColumnCount; i++)
             {
                 GameObject goColumn = Instantiate(this.prefabNibbsColumn);
                 NibbsColumn nibbsColumn = goColumn.GetComponent<NibbsColumn>();
-                nibbsColumn.Init(i, this.myTransform, level);// level.DefaultColumnHeight, angle, level.LevelRadius, level.NibbDefaultScaling);
+                nibbsColumn.Init(i, this.myTransform);
                 this.nibbsColumns.Add(nibbsColumn);
-                nibbsColumn.EventIn_StartLevelColumn.Invoke(level);
             }
         }
 
-        private void DisableNibb(int columnNr, int indexInColumn)
+        private void SetNibbsTypes()
         {
-            nibbsColumns[columnNr].EventIn_DisableNibb.Invoke(columnNr, indexInColumn);
+            for (int i = 0; i < this.nibbsColumns.Count; i++)
+            {
+                this.nibbsColumns[i].EventIn_SetNibbsTypes.Invoke();
+            }
         }
 
-        private void LetColumnsFall()
+        private void DestroyNibb(int columnNr, int indexInColumn)
         {
-            this.nibbsColumns.ForEach(i => i.EventIn_LetColumnsFall.Invoke());
+            nibbsColumns[columnNr].EventIn_DestroyNibb.Invoke(columnNr, indexInColumn);
+        }
+
+        private void LetColumnsFall(List<int> columnIndices)
+        {
+            VarOut_NibbsAreFalling = true;
+            for(int i = 0; i < columnIndices.Count; i++)
+            {
+                this.nibbsColumns[columnIndices[i]].EventOut_ColumnStateUpdated.AddListener(ColumnStateUpdated);
+                this.nibbsColumns[columnIndices[i]].EventIn_LetColumnsFall.Invoke(columnIndices);
+            }
+        }
+
+        private void ColumnStateUpdated()
+        {
+            bool columnsAreReadyForNextState = true;
+            for(int i = 0; i < this.nibbsColumns.Count; i++)
+            {
+                if(this.nibbsColumns[i].VarOut_HasFallingNibbs) { columnsAreReadyForNextState = false; break; }
+            }
+            if (columnsAreReadyForNextState) { VarOut_NibbsAreFalling = false; }
+            // TODO: test that function!!!!!!
         }
 
         internal static List<List<Nibb.State>> VarOut_GetNibbsStatesGrid()

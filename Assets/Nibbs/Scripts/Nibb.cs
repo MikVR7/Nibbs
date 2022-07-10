@@ -11,6 +11,18 @@ namespace Nibbs
 {
     internal class Nibb : SerializedMonoBehaviour
     {
+
+        [SerializeField] private int debugColumn = 0;
+        [SerializeField] private int debugNibb = 0;
+
+#if UNITY_EDITOR
+        [Button("Destroy")]
+        private void OnBtnDestroy()
+        {
+            this.OnPull(null, null);
+        }
+#endif
+
         internal enum State
         {
             Inited = 0, // ready for level but invisible
@@ -21,7 +33,9 @@ namespace Nibbs
 
         internal EventIn_SetColor EventIn_SetColor = new EventIn_SetColor();
         internal EventIn_SetNibbState EventIn_SetNibbState = new EventIn_SetNibbState();
-        internal EventIn_DisableNibb EventIn_DisableNibb = new EventIn_DisableNibb();
+        internal EventIn_DestroyNibb EventIn_DisableNibb = new EventIn_DestroyNibb();
+        internal EventIn_SetNibbPosY EventIn_SetNibbPosY = new EventIn_SetNibbPosY();
+        internal EventOut_NibbFinishedFalling EventOut_NibbFinishedFalling = new EventOut_NibbFinishedFalling();
 
         [SerializeField] private Dictionary<NibbColor, Material> materials = new Dictionary<NibbColor, Material>();
         [SerializeField] private Material matWhite = null;
@@ -33,11 +47,11 @@ namespace Nibbs
         
         private float scaling = 0f;
         private List<Nibb> neighbors = new List<Nibb>();
-        private string currentTag = string.Empty;
+        [SerializeField] private string currentTag = string.Empty;
         private bool isFalling = false;
         private int columnNr = 0;
         private int indexInColumn = 0;
-        internal State VarOut_CurrentState { get; private set; } = State.Idle;
+        [SerializeField] internal State VarOut_CurrentState { get; private set; } = State.Idle;
 
         internal NibbColor VarOut_CurrentColor { get; private set; } = NibbColor.Blue;
 
@@ -45,8 +59,10 @@ namespace Nibbs
         {
             EventIn_SetColor.AddListener(SetColor);
             EventIn_SetNibbState.AddListener(SetNibbState);
+            EventIn_SetNibbPosY.AddListener(SetNibbPosY);
             this.columnNr = columnNr;
             this.indexInColumn = indexInColumn;
+            this.scaling = scaling;
 
             this.gameObject.name = "nibb_" + columnNr + "_" + indexInColumn;
             this.VarOut_MyTransform = this.GetComponent<Transform>();
@@ -98,19 +114,26 @@ namespace Nibbs
             this.myRenderer.material = this.materials[this.VarOut_CurrentColor];
         }
 
+        private void SetNibbPosY(float posY)
+        {
+            this.VarOut_MyTransform.localPosition = new Vector3(
+                this.VarOut_MyTransform.localPosition.x,
+                posY,
+                this.VarOut_MyTransform.localPosition.z);
+        }
+
         internal void OnPull(Hand arg0, Grabbable arg1)
         {
-            this.myRenderer.material = this.matWhite;
+            //this.myRenderer.material = this.matWhite;
             List<KeyValuePair<int, int>> nibbsToDestroy = new List<KeyValuePair<int, int>>();
             nibbsToDestroy = DestroySelfAndNeighbors(nibbsToDestroy);
-            // TODO: 
-            //WinEvaluator.EventIn_EvaluateClickGroup.Invoke(nibbsToDestroy);
+            WinEvaluator.EventIn_EvaluateClickGroup.Invoke(nibbsToDestroy);
         }
 
         internal List<KeyValuePair<int, int>> DestroySelfAndNeighbors(List<KeyValuePair<int, int>> nibbsToDestroy)
         {
-            if(nibbsToDestroy.Contains(new KeyValuePair<int, int>(this.columnNr, this.indexInColumn))/* ||*/
-                /*TODO: NibbsGameHandler.VarOut_NibbsAreFalling()*/) { return nibbsToDestroy; }
+            if(nibbsToDestroy.Contains(new KeyValuePair<int, int>(this.columnNr, this.indexInColumn)) ||
+                LevelsHandler.VarOut_NibbsAreFalling) { return nibbsToDestroy; }
 
             GetNeighbors();
             nibbsToDestroy.Add(new KeyValuePair<int, int>(this.columnNr, this.indexInColumn));
@@ -122,13 +145,16 @@ namespace Nibbs
         {
             if(this.myRigidbody.isKinematic == false)
             {
-                if(this.myRigidbody.velocity.magnitude < 0.1f)
+                if(this.myRigidbody.velocity.y < 0.1f)
                 {
-                    //this.myRigidbody.isKinematic = true;
-                    NibbsGameHandler.EventOut_OnUpdate.RemoveListener(OnUpdate);
-                    this.SetNibbState(State.Idle);
-                    // TODO: 
-                    //NibbsGameHandler.EventIn_NibbFinishedFalling.Invoke(new KeyValuePair<int, int>(this.columnNr, this.indexInColumn));
+                    this.neighbors.Clear();
+                    this.ShootRay(this.VarOut_MyTransform.TransformDirection(Vector3.down),this.scaling * 0.501f, false);
+                    if ((this.indexInColumn == 0) || (this.neighbors.Count > 0) && this.neighbors[0].VarOut_CurrentState.Equals(State.Idle))
+                    {
+                        NibbsGameHandler.EventOut_OnUpdate.RemoveListener(OnUpdate);
+                        this.SetNibbState(State.Idle);
+                        EventOut_NibbFinishedFalling.Invoke(this.indexInColumn);
+                    }
                 }
             }
         }
@@ -136,25 +162,35 @@ namespace Nibbs
         private void GetNeighbors()
         {
             this.neighbors.Clear();
-            this.ShootRay(this.VarOut_MyTransform.TransformDirection(Vector3.up));
-            this.ShootRay(this.VarOut_MyTransform.TransformDirection(Vector3.down));
-            this.ShootRay(this.VarOut_MyTransform.TransformDirection(Vector3.left));
-            this.ShootRay(this.VarOut_MyTransform.TransformDirection(Vector3.right));
+            this.ShootRay(this.VarOut_MyTransform.TransformDirection(Vector3.up), this.scaling, true);
+            this.ShootRay(this.VarOut_MyTransform.TransformDirection(Vector3.down), this.scaling, true);
+            this.ShootRay(this.VarOut_MyTransform.TransformDirection(Vector3.left), this.scaling, true);
+            this.ShootRay(this.VarOut_MyTransform.TransformDirection(Vector3.right), this.scaling, true);
         }
 
-        private void ShootRay(Vector3 direction)
+        private void ShootRay(Vector3 direction, float rayLength, bool findEqualColor)
         {
             RaycastHit hit;
             Ray ray = new Ray(this.VarOut_MyTransform.position, direction);
-            if (Physics.Raycast(ray, out hit, this.scaling))
+            
+            if (Physics.Raycast(ray, out hit, rayLength))
             {
+                Debug.DrawRay(this.VarOut_MyTransform.position, direction, Color.green, 8);
                 if ((hit.collider != null) && (hit.collider.tag.Equals(this.currentTag))) {
                     Nibb neighbor = hit.transform.GetComponent<Nibb>();
-                    if (neighbor.VarOut_CurrentColor.Equals(this.VarOut_CurrentColor))
+                    if (findEqualColor && neighbor.VarOut_CurrentColor.Equals(this.VarOut_CurrentColor))
+                    {
+                        this.neighbors.Add(neighbor);
+                    }
+                    else if(!findEqualColor)
                     {
                         this.neighbors.Add(neighbor);
                     }
                 }
+            }
+            else
+            {
+                Debug.DrawRay(this.VarOut_MyTransform.position, direction, Color.magenta, 8);
             }
         }
     }

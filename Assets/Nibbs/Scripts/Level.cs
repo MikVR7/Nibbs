@@ -1,4 +1,6 @@
+using CodeEvents;
 using System.Collections.Generic;
+using static Nibbs.Events;
 
 namespace Nibbs
 {
@@ -19,13 +21,27 @@ namespace Nibbs
         internal float LevelRadius { get; set; } = 0f;
         internal float NibbDefaultScaling { get; set; } = 0f;
         internal float HeightStartOffset { get; set; } = 0f;
+        internal List<List<int>> StaticLevelElements { get; set; } = new List<List<int>>();
     }
 
     internal class Level
     {
-        internal LevelData VarOut_GetLevel(int level)
+        internal EventIn_SetupLevel EventIn_SetupLevel = new EventIn_SetupLevel();
+
+        internal LevelData VarOut_GetLevel()
         {
-            LevelData levelData = new LevelData();
+            return this.levelData;
+        }
+        private LevelData levelData = new LevelData();
+
+        internal void Init()
+        {
+            EventIn_SetupLevel.AddListener(SetLevel);
+        }
+
+        private void SetLevel(int level)
+        {
+            levelData = new LevelData();
             levelData.LevelNr = level;
             switch (level)
             {
@@ -53,8 +69,18 @@ namespace Nibbs
                     levelData.NibbDefaultScaling = 0.5f;
                     levelData.HeightStartOffset = 10f;
                     break;
+
+                // debugging levels
+                case 9990:
+                    levelData.NibbsColors = new List<NibbColor>() { NibbColor.Red, NibbColor.Yellow, NibbColor.Green };
+                    levelData.ColumnCount = 40;
+                    levelData.DefaultColumnHeight = 10;
+                    levelData.LevelRadius = 1.6f;
+                    levelData.NibbDefaultScaling = 0.25f;
+                    levelData.HeightStartOffset = 10f;
+                    levelData.StaticLevelElements = CustomNibbsGrids.VarOut_GetCustomNibbsGrid(0, levelData.ColumnCount, levelData.DefaultColumnHeight);
+                    break;
             }
-            return levelData;
         }
     }
 }

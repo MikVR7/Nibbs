@@ -8,12 +8,14 @@ namespace Nibbs
         internal static EventOut_OnUpdate EventOut_OnUpdate = new EventOut_OnUpdate();
 
         [SerializeField] private LevelsHandler levelsHandler = null;
-        
+        [SerializeField] private ControllsHandler controllsHandler = null;
+
         private CustomNibbsGrids customNibbsGrids = new CustomNibbsGrids();
         
         private void Awake()
         {
             this.levelsHandler.Init();
+            this.controllsHandler.Init();
             this.customNibbsGrids.Init();
         }
 
@@ -23,10 +25,22 @@ namespace Nibbs
             {
                 EventOut_OnUpdate.Invoke();
             }
-
-            if(Input.GetKeyDown(KeyCode.Alpha1))
+            // Controls without LEFT CTRL and LEFT SHIFT are main controls
+            if (!Input.GetKeyDown(KeyCode.LeftControl))
             {
-                LevelsHandler.EventIn_StartLevel.Invoke(1);
+                if (Input.GetKeyDown(KeyCode.Alpha1))
+                {
+                    LevelsHandler.EventIn_SetupLevel.Invoke(1);
+                }
+                if (Input.GetKeyDown(KeyCode.Alpha0))
+                {
+                    LevelsHandler.EventIn_SetupLevel.Invoke(9990);
+                }
+
+                if (Input.GetKeyDown(KeyCode.S))
+                {
+                    LevelsHandler.EventIn_StartLevel.Invoke();
+                }
             }
         }
     }
