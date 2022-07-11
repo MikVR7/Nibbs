@@ -21,7 +21,7 @@ namespace Nibbs
             List<List<int>> result = new List<List<int>>();
             if(gridType == 0)
             {
-               result = GetQuadraticGrid(columnsCount, nibbsCount, 3);
+               result = GetQuadraticGrid(columnsCount, nibbsCount, 2);
             }
             return result;
         }

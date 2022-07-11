@@ -1,10 +1,11 @@
+using Sirenix.OdinInspector;
 using System.Collections.Generic;
 using UnityEngine;
 using static Nibbs.Events;
 
 namespace Nibbs
 {
-    internal class LevelsHandler : MonoBehaviour
+    internal class LevelsHandler : SerializedMonoBehaviour
     {
         internal static EventIn_SetupLevel EventIn_SetupLevel = new EventIn_SetupLevel();
         internal static EventIn_StartLevel EventIn_StartLevel = new EventIn_StartLevel();
@@ -14,10 +15,11 @@ namespace Nibbs
         private static LevelsHandler Instance = null;
         [SerializeField] private GameObject prefabNibbsColumn = null;
         internal static Level VarOut_Level { get; private set; } = new Level();
-        internal static bool VarOut_NibbsAreFalling { get; private set; } = false;
+        [SerializeField] internal static bool VarOut_NibbsAreFalling { get; private set; } = false;
         private Transform myTransform = null;
         private List<NibbsColumn> nibbsColumns = new List<NibbsColumn>();
         private WinEvaluator winEvaluator = new WinEvaluator();
+        [SerializeField] private ColumnShifter columnShifter = null;
 
         internal void Init()
         {
@@ -29,6 +31,7 @@ namespace Nibbs
             EventIn_LetColumnsFall.AddListener(LetColumnsFall);
             VarOut_Level.Init();
             this.winEvaluator.Init();
+            this.columnShifter.Init();
         }
 
         private void SetupLevel(int levelNr) {
@@ -91,10 +94,26 @@ namespace Nibbs
             bool columnsAreReadyForNextState = true;
             for(int i = 0; i < this.nibbsColumns.Count; i++)
             {
-                if(this.nibbsColumns[i].VarOut_HasFallingNibbs) { columnsAreReadyForNextState = false; break; }
+                if(this.nibbsColumns[i].VarOut_HasFallingNibbs) {
+                    columnsAreReadyForNextState = false; break;
+                }
             }
-            if (columnsAreReadyForNextState) { VarOut_NibbsAreFalling = false; }
-            // TODO: test that function!!!!!!
+            if (columnsAreReadyForNextState) {
+                VarOut_NibbsAreFalling = false;
+                this.RotateColumns();
+            }
+        }
+
+        private void RotateColumns()
+        {
+            List<ColumnShiftInstance> shiftInstances = new List<ColumnShiftInstance>();
+            this.nibbsColumns.ForEach(i => shiftInstances.Add(new ColumnShiftInstance()
+            {
+                ColumnHasNibbs = i.VarOut_ColumnHasActiveNibbs,
+                TColumn = i.VarOut_MyTransform
+
+            }));
+            this.columnShifter.EventIn_RotateColumns.Invoke(shiftInstances, LevelsHandler.VarOut_Level.VarOut_GetLevel().ColumnCount / 360f);
         }
 
         internal static List<List<Nibb.State>> VarOut_GetNibbsStatesGrid()

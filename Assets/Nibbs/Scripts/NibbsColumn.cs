@@ -21,15 +21,15 @@ namespace Nibbs
 
         private int columnIndex = 0;
         private List<Nibb> nibbs = new List<Nibb>();
-        private Transform myTransform = null;
+        internal Transform VarOut_MyTransform { get; private set; } = null;
 
         internal void Init(int columnIndex, Transform parent)
         {
             this.columnIndex = columnIndex;
             this.gameObject.name = "column_" + columnIndex;
-            this.myTransform = this.GetComponent<Transform>();
-            this.myTransform.parent = parent;
-            this.myTransform.localPosition = Vector3.zero;
+            this.VarOut_MyTransform = this.GetComponent<Transform>();
+            this.VarOut_MyTransform.parent = parent;
+            this.VarOut_MyTransform.localPosition = Vector3.zero;
             float angle = columnIndex * Mathf.PI * 2f / LevelsHandler.VarOut_Level.VarOut_GetLevel().ColumnCount;
             float levelRadius = LevelsHandler.VarOut_Level.VarOut_GetLevel().LevelRadius;
             this.tNibbsHolder.localPosition = new Vector3(Mathf.Cos(angle) * levelRadius, 0f, Mathf.Sin(angle) * levelRadius);
@@ -48,7 +48,7 @@ namespace Nibbs
             {
                 GameObject goNibb = Instantiate(this.prefabNibb);
                 Nibb nibb = goNibb.GetComponent<Nibb>();
-                nibb.Init(this.tNibbsHolder, this.columnIndex, i, LevelsHandler.VarOut_Level.VarOut_GetLevel().NibbDefaultScaling, this.myTransform.position);
+                nibb.Init(this.tNibbsHolder, this.columnIndex, i, LevelsHandler.VarOut_Level.VarOut_GetLevel().NibbDefaultScaling, this.VarOut_MyTransform.position);
                 this.nibbs.Add(nibb);
             }
         }
@@ -101,17 +101,21 @@ namespace Nibbs
             bool letFall = false;
             for(int i = 0; i < this.nibbs.Count; i++)
             {
-                if (!letFall && this.nibbs[i].VarOut_CurrentState.Equals(Nibb.State.Idle))
+                if (!letFall && this.nibbs[i].VarOut_CurrentState.Equals(Nibb.State.Destroyed))
                 {
                     letFall = true;
                 }
-                if(letFall)
+                else if(letFall && this.nibbs[i].VarOut_CurrentState.Equals(Nibb.State.Idle))
                 {
+                    VarOut_HasFallingNibbs = true;
                     this.nibbs[i].EventIn_SetNibbState.Invoke(Nibb.State.Falling);
                     this.nibbs[i].EventOut_NibbFinishedFalling.AddListener(OnNibbFinishedFalling);
                 }
             }
-
+            if(!VarOut_HasFallingNibbs)
+            {
+                OnNibbFinishedFalling(-1);
+            }
         }
 
         private void OnNibbFinishedFalling(int index)

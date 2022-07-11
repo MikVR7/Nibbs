@@ -28,5 +28,9 @@ namespace Nibbs
 
         // WinEvaluator.cs
         internal class EventIn_EvaluateClickGroup : EventSystem<List<KeyValuePair<int, int>>> { }
+
+        // ColumnShifter.cs
+        internal class EventIn_RotateColumns : EventSystem<List<ColumnShiftInstance>, float> { }
+        internal class EventOut_ColumnShiftingDone : EventSystem { }
     }
 }
