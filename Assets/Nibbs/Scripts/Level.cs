@@ -74,7 +74,7 @@ namespace Nibbs
                 case 9990:
                     levelData.NibbsColors = new List<NibbColor>() { NibbColor.Red, NibbColor.Yellow, NibbColor.Green };
                     levelData.ColumnCount = 40;
-                    levelData.DefaultColumnHeight = 10;
+                    levelData.DefaultColumnHeight = 4;
                     levelData.LevelRadius = 1.6f;
                     levelData.NibbDefaultScaling = 0.25f;
                     levelData.HeightStartOffset = 10f;

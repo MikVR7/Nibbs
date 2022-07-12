@@ -12,6 +12,7 @@ namespace Nibbs
         internal class EventIn_SetColor : EventSystem<NibbColor> { }
         internal class EventIn_SetNibbState : EventSystem<Nibb.State> { }
         internal class EventIn_SetNibbPosY : EventSystem<float> { }
+        internal class EventIn_SetNibbIndex : EventSystem<int> { }
         internal class EventOut_NibbFinishedFalling : EventSystem<int> { }
 
         // LevelsHandler.cs | NibbsColumn.cs
@@ -25,6 +26,7 @@ namespace Nibbs
         // NibbsColumn.cs
         internal class EventIn_SetNibbsTypes : EventSystem { }
         internal class EventOut_ColumnStateUpdated : EventSystem { }
+        internal class EventIn_SetColumnIndex : EventSystem<int> { }
 
         // WinEvaluator.cs
         internal class EventIn_EvaluateClickGroup : EventSystem<List<KeyValuePair<int, int>>> { }

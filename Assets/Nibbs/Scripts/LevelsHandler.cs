@@ -18,6 +18,7 @@ namespace Nibbs
         [SerializeField] internal static bool VarOut_NibbsAreFalling { get; private set; } = false;
         private Transform myTransform = null;
         private List<NibbsColumn> nibbsColumns = new List<NibbsColumn>();
+        private List<NibbsColumn> nibbsColumnsEmpty = new List<NibbsColumn>();
         private WinEvaluator winEvaluator = new WinEvaluator();
         [SerializeField] private ColumnShifter columnShifter = null;
 
@@ -51,7 +52,12 @@ namespace Nibbs
             for (int i = this.nibbsColumns.Count - 1; i >= 0; i--) {
                 Destroy(nibbsColumns[i].gameObject);
             }
+            for (int i = this.nibbsColumnsEmpty.Count - 1; i >= 0; i--)
+            {
+                Destroy(nibbsColumnsEmpty[i].gameObject);
+            }
             nibbsColumns.Clear();
+            nibbsColumnsEmpty.Clear();
         }
 
         private void CreateNibbsColumns()
@@ -106,14 +112,53 @@ namespace Nibbs
 
         private void RotateColumns()
         {
-            List<ColumnShiftInstance> shiftInstances = new List<ColumnShiftInstance>();
-            this.nibbsColumns.ForEach(i => shiftInstances.Add(new ColumnShiftInstance()
+            if (!this.columnShifter.VarOut_IsPerformingRotationAnimation)
             {
-                ColumnHasNibbs = i.VarOut_ColumnHasActiveNibbs,
-                TColumn = i.VarOut_MyTransform
+                List<ColumnShiftInstance> shiftInstances = new List<ColumnShiftInstance>();
+                this.nibbsColumns.ForEach(i => shiftInstances.Add(new ColumnShiftInstance()
+                {
+                    ColumnHasNibbs = i.VarOut_ColumnHasActiveNibbs,
+                    TColumn = i.VarOut_MyTransform
 
-            }));
-            this.columnShifter.EventIn_RotateColumns.Invoke(shiftInstances, LevelsHandler.VarOut_Level.VarOut_GetLevel().ColumnCount / 360f);
+                }));
+                this.columnShifter.EventOut_ColumnShiftingDone.AddListenerSingle(ColumnShiftingDone);
+                this.columnShifter.EventIn_RotateColumns.Invoke(shiftInstances, 360f / LevelsHandler.VarOut_Level.VarOut_GetLevel().ColumnCount);
+            }
+        }
+
+        private void ColumnShiftingDone()
+        {
+            this.columnShifter.EventOut_ColumnShiftingDone.RemoveListener(ColumnShiftingDone);
+            for(int i = this.nibbsColumns.Count-1; i >= 0; i--) {
+                if (!this.nibbsColumns[i].VarOut_ColumnHasActiveNibbs)
+                {
+                    this.nibbsColumnsEmpty.Add(this.nibbsColumns[i]);
+                    this.nibbsColumns.RemoveAt(i);
+                }
+            }
+            for(int i = 0; i < this.nibbsColumns.Count; i++)
+            {
+                this.nibbsColumns[i].EventIn_SetColumnIndex.Invoke(i);
+            }
+
+            this.CheckIfThereAreGroupsLeft();
+        }
+
+
+        private void CheckIfThereAreGroupsLeft() {
+            bool aNibbHasSameColoredNeighbor = false;
+            for (int i = 0; i < this.nibbsColumns.Count; i++)
+            {
+                if(this.nibbsColumns[i].VarOut_HasNibbAnySameColoredNeighbor()) { aNibbHasSameColoredNeighbor = true; break; }
+            }
+            if(aNibbHasSameColoredNeighbor)
+            {
+                // in that case continue level
+            }
+            else
+            {
+                // handle level finished here!
+            }
         }
 
         internal static List<List<Nibb.State>> VarOut_GetNibbsStatesGrid()
