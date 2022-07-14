@@ -48,6 +48,7 @@ namespace Nibbs
         private void SetColumnIndex(int index)
         {
             this.columnIndex = index;
+            this.gameObject.name = "column_" + columnIndex;
             this.nibbs.ForEach(i => i.EventIn_SetColumnIndex.Invoke(index));
         }
 

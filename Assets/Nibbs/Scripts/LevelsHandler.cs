@@ -1,4 +1,5 @@
 using Sirenix.OdinInspector;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using static Nibbs.Events;
@@ -16,9 +17,10 @@ namespace Nibbs
         [SerializeField] private GameObject prefabNibbsColumn = null;
         internal static Level VarOut_Level { get; private set; } = new Level();
         [SerializeField] internal static bool VarOut_NibbsAreFalling { get; private set; } = false;
+        [SerializeField] internal static bool VarOut_WinEvaluationRunning { get; set; } = false;
         private Transform myTransform = null;
-        private List<NibbsColumn> nibbsColumns = new List<NibbsColumn>();
-        private List<NibbsColumn> nibbsColumnsEmpty = new List<NibbsColumn>();
+        [SerializeField] private List<NibbsColumn> nibbsColumns = new List<NibbsColumn>();
+        [SerializeField] private List<NibbsColumn> nibbsColumnsEmpty = new List<NibbsColumn>();
         private WinEvaluator winEvaluator = new WinEvaluator();
         [SerializeField] private ColumnShifter columnShifter = null;
 
@@ -132,6 +134,7 @@ namespace Nibbs
             for(int i = this.nibbsColumns.Count-1; i >= 0; i--) {
                 if (!this.nibbsColumns[i].VarOut_ColumnHasActiveNibbs)
                 {
+                    this.nibbsColumns[i].gameObject.SetActive(false);
                     this.nibbsColumnsEmpty.Add(this.nibbsColumns[i]);
                     this.nibbsColumns.RemoveAt(i);
                 }
@@ -146,19 +149,30 @@ namespace Nibbs
 
 
         private void CheckIfThereAreGroupsLeft() {
-            bool aNibbHasSameColoredNeighbor = false;
+            bool nibbHasSameColoredNeighbor = false;
             for (int i = 0; i < this.nibbsColumns.Count; i++)
             {
-                if(this.nibbsColumns[i].VarOut_HasNibbAnySameColoredNeighbor()) { aNibbHasSameColoredNeighbor = true; break; }
+                if(this.nibbsColumns[i].VarOut_HasNibbAnySameColoredNeighbor()) { nibbHasSameColoredNeighbor = true; break; }
             }
-            if(aNibbHasSameColoredNeighbor)
+            if (!nibbHasSameColoredNeighbor)
             {
-                // in that case continue level
+                StartCoroutine(StartNextLevelDelayed());
             }
             else
             {
-                // handle level finished here!
+                // continue level
+                VarOut_WinEvaluationRunning = false;
             }
+        }
+
+        private IEnumerator StartNextLevelDelayed()
+        {
+            yield return new WaitForSecondsRealtime(2f);
+            
+            // handle level finished here!
+            LevelsHandler.EventIn_SetupLevel.Invoke(VarOut_Level.VarOut_GetLevel().LevelNr);
+            LevelsHandler.EventIn_StartLevel.Invoke();
+            VarOut_WinEvaluationRunning = false;
         }
 
         internal static List<List<Nibb.State>> VarOut_GetNibbsStatesGrid()

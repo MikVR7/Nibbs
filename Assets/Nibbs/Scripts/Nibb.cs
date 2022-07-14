@@ -126,10 +126,12 @@ namespace Nibbs
         private void SetNibbIndex(int index)
         {
             this.indexInColumn = index;
+            this.gameObject.name = "nibb_" + this.columnNr + "_" + this.indexInColumn;
         }
         private void SetColumnIndex(int index)
         {
             this.columnNr = index;
+            this.gameObject.name = "nibb_" + this.columnNr + "_" + this.indexInColumn;
         }
 
         internal void OnPull(Hand arg0, Grabbable arg1)
@@ -143,7 +145,7 @@ namespace Nibbs
         internal List<KeyValuePair<int, int>> DestroySelfAndNeighbors(List<KeyValuePair<int, int>> nibbsToDestroy)
         {
             if(nibbsToDestroy.Contains(new KeyValuePair<int, int>(this.columnNr, this.indexInColumn)) ||
-                LevelsHandler.VarOut_NibbsAreFalling) { return nibbsToDestroy; }
+                LevelsHandler.VarOut_NibbsAreFalling || LevelsHandler.VarOut_WinEvaluationRunning) { return nibbsToDestroy; }
 
             GetNeighbors();
             nibbsToDestroy.Add(new KeyValuePair<int, int>(this.columnNr, this.indexInColumn));

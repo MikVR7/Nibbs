@@ -21,6 +21,7 @@ namespace Nibbs
             Debug.Log("Nibbs to destroy: " + nibbsToDestroy.Count);
             if (nibbsToDestroy.Count > 1)
             {
+                LevelsHandler.VarOut_WinEvaluationRunning = true;
                 // collect columns to fall
                 List<int> columnsToFall = new List<int>();
                 nibbsToDestroy.ForEach(i => {

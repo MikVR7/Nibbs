@@ -19,11 +19,11 @@ namespace Nibbs
         internal EventOut_ColumnShiftingDone EventOut_ColumnShiftingDone = new EventOut_ColumnShiftingDone();
 
         [SerializeField] private AnimationCurve animCurveRotation = null;
+        [SerializeField] private float rotationDuration = 1f;
 
         private List<ColumnShiftInstance> shiftInstances = new List<ColumnShiftInstance>();
         internal bool VarOut_IsPerformingRotationAnimation { get; private set; } = false;
         private float startRotationTime = 0f;
-        private float rotationDuration = 2f;
 
         internal void Init()
         {
