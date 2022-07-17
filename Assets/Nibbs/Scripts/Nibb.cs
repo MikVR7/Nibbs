@@ -1,10 +1,11 @@
 
-using Autohand;
 using CodeEvents;
 using Sirenix.OdinInspector;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.XR.Interaction.Toolkit;
 using static Nibbs.Events;
 
 namespace Nibbs
@@ -15,7 +16,7 @@ namespace Nibbs
         [Button("Destroy")]
         private void OnBtnDestroy()
         {
-            this.OnPull(null, null);
+            this.OnClickNibb(null/*null, null*/);
         }
 #endif
 
@@ -37,11 +38,11 @@ namespace Nibbs
 
         [SerializeField] private Dictionary<NibbColor, Material> materials = new Dictionary<NibbColor, Material>();
         [SerializeField] private Material matWhite = null;
+        [SerializeField] private XRSimpleInteractable xrSimpleInteractable = null;
         private SphereCollider myCollider = null;
         private Rigidbody myRigidbody = null;
         internal Transform VarOut_MyTransform { get; private set; } = null;
         private MeshRenderer myRenderer = null;
-        private DistanceGrabbable distanceGrabbable = null;
         
         private float scaling = 0f;
         private List<Nibb> neighbors = new List<Nibb>();
@@ -74,10 +75,9 @@ namespace Nibbs
             this.myCollider = this.GetComponent<SphereCollider>();
             this.myRigidbody = this.GetComponent<Rigidbody>();
             this.myRenderer = this.GetComponent<MeshRenderer>();
-            this.distanceGrabbable = this.GetComponent<DistanceGrabbable>();
-            this.distanceGrabbable.OnPull.AddListener(OnPull);
             this.currentTag = this.gameObject.tag;
-
+            this.xrSimpleInteractable.interactionManager = ControllsHandler.VarOut_XRInteractionManager();
+            this.xrSimpleInteractable.activated.AddListener(OnClickNibb);
             this.SetNibbState(State.Inited);
         }
 
@@ -134,7 +134,7 @@ namespace Nibbs
             this.gameObject.name = "nibb_" + this.columnNr + "_" + this.indexInColumn;
         }
 
-        internal void OnPull(Hand arg0, Grabbable arg1)
+        internal void OnClickNibb(ActivateEventArgs arg0/*Hand arg0, Grabbable arg1*/)
         {
             //this.myRenderer.material = this.matWhite;
             List<KeyValuePair<int, int>> nibbsToDestroy = new List<KeyValuePair<int, int>>();

@@ -34,5 +34,8 @@ namespace Nibbs
         // ColumnShifter.cs
         internal class EventIn_RotateColumns : EventSystem<List<ColumnShiftInstance>, float> { }
         internal class EventOut_ColumnShiftingDone : EventSystem { }
+
+        // GUIHandler.cs
+        internal class EventOut_OnBtnStart : EventSystem { }
     }
 }

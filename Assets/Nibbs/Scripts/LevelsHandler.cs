@@ -32,9 +32,16 @@ namespace Nibbs
             EventIn_SetupLevel.AddListener(SetupLevel);
             EventIn_StartLevel.AddListener(StartLevel);
             EventIn_LetColumnsFall.AddListener(LetColumnsFall);
+            GUIHandler.EventOut_OnBtnStart.AddListener(OnBtnStart);
             VarOut_Level.Init();
             this.winEvaluator.Init();
             this.columnShifter.Init();
+        }
+
+        private void OnBtnStart()
+        {
+            SetupLevel(1);
+            StartLevel();
         }
 
         private void SetupLevel(int levelNr) {

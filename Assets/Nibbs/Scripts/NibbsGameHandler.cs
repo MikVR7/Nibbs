@@ -9,6 +9,7 @@ namespace Nibbs
 
         [SerializeField] private LevelsHandler levelsHandler = null;
         [SerializeField] private ControllsHandler controllsHandler = null;
+        [SerializeField] private GUIHandler guiHandler = null;
 
         private CustomNibbsGrids customNibbsGrids = new CustomNibbsGrids();
         
@@ -17,6 +18,7 @@ namespace Nibbs
             this.levelsHandler.Init();
             this.controllsHandler.Init();
             this.customNibbsGrids.Init();
+            this.guiHandler.Init();
         }
 
         private void Update()
