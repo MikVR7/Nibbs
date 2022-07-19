@@ -13,7 +13,7 @@ namespace Nibbs
 
         internal void Init()
         {
-            EventIn_EvaluateClickGroup.AddListener(EvaluateClickGroup);
+            EventIn_EvaluateClickGroup.AddListenerSingle(EvaluateClickGroup);
         }
 
         private void EvaluateClickGroup(List<KeyValuePair<int, int>> nibbsToDestroy)
@@ -21,7 +21,7 @@ namespace Nibbs
             Debug.Log("Nibbs to destroy: " + nibbsToDestroy.Count);
             if (nibbsToDestroy.Count > 1)
             {
-                LevelsHandler.VarOut_WinEvaluationRunning = true;
+                //LevelsHandler.VarOut_WinEvaluationRunning = true;
                 // collect columns to fall
                 List<int> columnsToFall = new List<int>();
                 nibbsToDestroy.ForEach(i => {

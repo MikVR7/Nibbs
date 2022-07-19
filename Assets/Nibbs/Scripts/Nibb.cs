@@ -4,6 +4,7 @@ using Sirenix.OdinInspector;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 using static Nibbs.Events;
@@ -39,6 +40,7 @@ namespace Nibbs
         [SerializeField] private Dictionary<NibbColor, Material> materials = new Dictionary<NibbColor, Material>();
         [SerializeField] private Material matWhite = null;
         [SerializeField] private XRSimpleInteractable xrSimpleInteractable = null;
+        [SerializeField] private TextMeshPro tmpText = null;
         private SphereCollider myCollider = null;
         private Rigidbody myRigidbody = null;
         internal Transform VarOut_MyTransform { get; private set; } = null;
@@ -47,7 +49,6 @@ namespace Nibbs
         private float scaling = 0f;
         private List<Nibb> neighbors = new List<Nibb>();
         [SerializeField] private string currentTag = string.Empty;
-        private bool isFalling = false;
         private int columnNr = 0;
         private int indexInColumn = 0;
         private Ray ray = new Ray();
@@ -57,11 +58,11 @@ namespace Nibbs
 
         internal void Init(Transform parent, int columnNr, int indexInColumn, float scaling, Vector3 centerPoint)
         {
-            EventIn_SetColor.AddListener(SetColor);
-            EventIn_SetNibbState.AddListener(SetNibbState);
-            EventIn_SetNibbPosY.AddListener(SetNibbPosY);
-            EventIn_SetNibbIndex.AddListener(SetNibbIndex);
-            EventIn_SetColumnIndex.AddListener(SetColumnIndex);
+            EventIn_SetColor.AddListenerSingle(SetColor);
+            EventIn_SetNibbState.AddListenerSingle(SetNibbState);
+            EventIn_SetNibbPosY.AddListenerSingle(SetNibbPosY);
+            EventIn_SetNibbIndex.AddListenerSingle(SetNibbIndex);
+            EventIn_SetColumnIndex.AddListenerSingle(SetColumnIndex);
             this.columnNr = columnNr;
             this.indexInColumn = indexInColumn;
             this.scaling = scaling;
@@ -79,11 +80,19 @@ namespace Nibbs
             this.xrSimpleInteractable.interactionManager = ControllsHandler.VarOut_XRInteractionManager();
             this.xrSimpleInteractable.activated.AddListener(OnClickNibb);
             this.SetNibbState(State.Inited);
+
+            this.SetText();
+        }
+
+        private void SetText()
+        {
+            this.tmpText.text = this.gameObject.name + "<br>" + VarOut_CurrentState;
         }
 
         private void SetNibbState(State state)
         {
             this.VarOut_CurrentState = state;
+            NibbsGameHandler.EventOut_OnUpdate.RemoveListener(OnUpdate);
             switch (state)
             {
                 case State.Inited:
@@ -95,19 +104,20 @@ namespace Nibbs
                     break;
                 case State.Falling:
                     this.myRigidbody.isKinematic = false;
-                    this.myRigidbody.AddRelativeForce(new Vector3(0f, -10f, 0f), ForceMode.Impulse);
+                    this.myRigidbody.AddRelativeForce(new Vector3(0f, -1f, 0f), ForceMode.Impulse);
                     StartCoroutine(StopFalling());
                     break;
                 case State.Destroyed:
                     this.gameObject.SetActive(false);
                     break;
             }
+            this.SetText();
         }
 
         private IEnumerator StopFalling()
         {
             yield return new WaitForSeconds(1f);
-            NibbsGameHandler.EventOut_OnUpdate.AddListener(OnUpdate);
+            NibbsGameHandler.EventOut_OnUpdate.AddListenerSingle(OnUpdate);
         }
 
         private void SetColor(NibbColor color) {
@@ -127,11 +137,13 @@ namespace Nibbs
         {
             this.indexInColumn = index;
             this.gameObject.name = "nibb_" + this.columnNr + "_" + this.indexInColumn;
+            this.SetText();
         }
         private void SetColumnIndex(int index)
         {
             this.columnNr = index;
             this.gameObject.name = "nibb_" + this.columnNr + "_" + this.indexInColumn;
+            this.SetText();
         }
 
         internal void OnClickNibb(ActivateEventArgs arg0/*Hand arg0, Grabbable arg1*/)
@@ -145,7 +157,7 @@ namespace Nibbs
         internal List<KeyValuePair<int, int>> DestroySelfAndNeighbors(List<KeyValuePair<int, int>> nibbsToDestroy)
         {
             if(nibbsToDestroy.Contains(new KeyValuePair<int, int>(this.columnNr, this.indexInColumn)) ||
-                LevelsHandler.VarOut_NibbsAreFalling || LevelsHandler.VarOut_WinEvaluationRunning) { return nibbsToDestroy; }
+                LevelsHandler.VarOut_LevelState != LevelsHandler.LevelState.Idle/*LevelsHandler.VarOut_NibbsAreFalling || LevelsHandler.VarOut_WinEvaluationRunning*/) { return nibbsToDestroy; }
 
             GetNeighbors();
             nibbsToDestroy.Add(new KeyValuePair<int, int>(this.columnNr, this.indexInColumn));
@@ -163,16 +175,22 @@ namespace Nibbs
                     this.ShootRay(this.VarOut_MyTransform.TransformDirection(Vector3.down),this.scaling * 0.501f, false);
                     if ((this.indexInColumn == 0) || (this.neighbors.Count > 0) && this.neighbors[0].VarOut_CurrentState.Equals(State.Idle))
                     {
-                        NibbsGameHandler.EventOut_OnUpdate.RemoveListener(OnUpdate);
-                        this.SetNibbState(State.Idle);
-                        this.VarOut_MyTransform.localPosition = new Vector3(
-                            this.VarOut_MyTransform.localPosition.x, 
-                            (this.scaling / 2f) + (scaling*this.indexInColumn), 
-                            this.VarOut_MyTransform.localPosition.z);
-                        EventOut_NibbFinishedFalling.Invoke(this.indexInColumn);
+                        StartCoroutine(NibbStoppedFallingDelayed());
                     }
                 }
             }
+        }
+
+        private IEnumerator NibbStoppedFallingDelayed()
+        {
+            yield return new WaitForSecondsRealtime(2f);
+            NibbsGameHandler.EventOut_OnUpdate.RemoveListener(OnUpdate);
+            this.SetNibbState(State.Idle);
+            this.VarOut_MyTransform.localPosition = new Vector3(
+                this.VarOut_MyTransform.localPosition.x,
+                (this.scaling / 2f) + (scaling * this.indexInColumn),
+                this.VarOut_MyTransform.localPosition.z);
+            EventOut_NibbFinishedFalling.Invoke(this.indexInColumn);
         }
 
         private void GetNeighbors()

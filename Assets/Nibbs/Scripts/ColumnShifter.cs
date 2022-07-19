@@ -19,7 +19,7 @@ namespace Nibbs
         internal EventOut_ColumnShiftingDone EventOut_ColumnShiftingDone = new EventOut_ColumnShiftingDone();
 
         [SerializeField] private AnimationCurve animCurveRotation = null;
-        [SerializeField] private float rotationDuration = 1f;
+        [SerializeField] private float rotationDuration = 5f;
 
         private List<ColumnShiftInstance> shiftInstances = new List<ColumnShiftInstance>();
         internal bool VarOut_IsPerformingRotationAnimation { get; private set; } = false;
@@ -27,7 +27,7 @@ namespace Nibbs
 
         internal void Init()
         {
-            EventIn_RotateColumns.AddListener(RotateColumns);
+            EventIn_RotateColumns.AddListenerSingle(RotateColumns);
         }
 
         private void RotateColumns(List<ColumnShiftInstance> shiftInstances, float degreesByColumn)
@@ -67,7 +67,6 @@ namespace Nibbs
                 }
                 else
                 {
-                    Debug.Log("NOPE: " + i + " " + addedRotationStep);
                     if (addedRotationStep)
                     {
                         currentRotation = rotationSteps * degreesByColumn;
@@ -91,14 +90,16 @@ namespace Nibbs
         {
             float animCurvePosition = (Time.realtimeSinceStartup - this.startRotationTime) / this.rotationDuration;
             float rotationPercent = this.animCurveRotation.Evaluate(animCurvePosition);
-            Debug.Log("Rotation percentos: " + animCurvePosition + " " + rotationPercent + " " + shiftInstances.Count);
             for (int i = 0; i < this.shiftInstances.Count; i++)
             {
-                this.shiftInstances[i].TColumn.localEulerAngles = new Vector3(
-                    this.shiftInstances[i].TColumn.localEulerAngles.x,
-                    this.shiftInstances[i].OriginalRotation + (this.shiftInstances[i].DegreesToRotate * rotationPercent),
-                    this.shiftInstances[i].TColumn.localEulerAngles.z
-                );
+                if (shiftInstances[i] != null)
+                {
+                    this.shiftInstances[i].TColumn.localEulerAngles = new Vector3(
+                        this.shiftInstances[i].TColumn.localEulerAngles.x,
+                        this.shiftInstances[i].OriginalRotation + (this.shiftInstances[i].DegreesToRotate * rotationPercent),
+                        this.shiftInstances[i].TColumn.localEulerAngles.z
+                    );
+                }
                 if (i == 0)
                 {
                     //Debug.Log("SHIFT INSTANCES: " + this.shiftInstances[i].TColumn.name + " " + i + " " + this.shiftInstances[i].TColumn.localEulerAngles.y + " " + rotationPercent);
@@ -109,11 +110,14 @@ namespace Nibbs
             {
                 for (int i = 0; i < this.shiftInstances.Count; i++)
                 {
-                    this.shiftInstances[i].TColumn.localEulerAngles = new Vector3(
+                    if (shiftInstances[i] != null)
+                    {
+                        this.shiftInstances[i].TColumn.localEulerAngles = new Vector3(
                         this.shiftInstances[i].TColumn.localEulerAngles.x,
                         this.shiftInstances[i].OriginalRotation + this.shiftInstances[i].DegreesToRotate,
                         this.shiftInstances[i].TColumn.localEulerAngles.z
-                    );
+                        );
+                    }
                     //Debug.Log("SHIFT INSTANCES END: " + this.shiftInstances[i].TColumn.name + " " + i + " " + this.shiftInstances[i].TColumn.localEulerAngles.y);
                 }
 

@@ -22,10 +22,11 @@ namespace Nibbs
 
         // LevelsHandler.cs
         internal class EventIn_SetupLevel : EventSystem<int> { }
+        internal class EventIn_ColumnsFinishedFalling : EventSystem { }
+        internal class EventIn_ColumnStartedFallingState : EventSystem { }
 
         // NibbsColumn.cs
         internal class EventIn_SetNibbsTypes : EventSystem { }
-        internal class EventOut_ColumnStateUpdated : EventSystem { }
         internal class EventIn_SetColumnIndex : EventSystem<int> { }
 
         // WinEvaluator.cs

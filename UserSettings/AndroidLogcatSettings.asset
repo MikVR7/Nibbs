@@ -3,7 +3,7 @@
     "m_SelectedPackage": {
         "deviceId": "1PASH9AC9R9133",
         "name": "com.Tokele.VRTestProject",
-        "processId": 15837,
+        "processId": 15117,
         "exited": false
     },
     "m_SelectedPriority": 0,
@@ -12,24 +12,36 @@
             "deviceId": "1PASH9AC9R9133",
             "name": "com.Tokele.VRTestProject",
             "processId": 14107,
-            "exited": false
+            "exited": true
         },
         {
             "deviceId": "1PASH9AC9R9133",
             "name": "com.Tokele.VRTestProject",
             "processId": 14520,
-            "exited": false
+            "exited": true
         },
         {
             "deviceId": "1PASH9AC9R9133",
             "name": "com.Tokele.VRTestProject",
             "processId": 15111,
-            "exited": false
+            "exited": true
         },
         {
             "deviceId": "1PASH9AC9R9133",
             "name": "com.Tokele.VRTestProject",
             "processId": 15837,
+            "exited": true
+        },
+        {
+            "deviceId": "1PASH9AC9R9133",
+            "name": "com.Tokele.VRTestProject",
+            "processId": 13007,
+            "exited": false
+        },
+        {
+            "deviceId": "1PASH9AC9R9133",
+            "name": "com.Tokele.VRTestProject",
+            "processId": 15117,
             "exited": false
         }
     ],
