@@ -1,5 +1,6 @@
 using CodeEvents;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace Nibbs
 {
@@ -28,15 +29,19 @@ namespace Nibbs
         // NibbsColumn.cs
         internal class EventIn_SetNibbsTypes : EventSystem { }
         internal class EventIn_SetColumnIndex : EventSystem<int> { }
+        internal class EventIn_DeactivateColumn : EventSystem { }
 
         // WinEvaluator.cs
         internal class EventIn_EvaluateClickGroup : EventSystem<List<KeyValuePair<int, int>>> { }
+        internal class EventIn_ResetPointsCount : EventSystem { }
 
         // ColumnShifter.cs
-        internal class EventIn_RotateColumns : EventSystem<List<ColumnShiftInstance>, float> { }
+        internal class EventIn_RotateColumns : EventSystem<List<ColumnShiftInstance>> { }
         internal class EventOut_ColumnShiftingDone : EventSystem { }
+        internal class EventIn_RotateLevel : EventSystem <bool, int> { }
 
         // GUIHandler.cs
         internal class EventOut_OnBtnStart : EventSystem { }
+        internal class EventIn_SetPointsCount : EventSystem<int> { }
     }
 }

@@ -54,12 +54,9 @@ MonoBehaviour:
     PrefabModificationsReferencedUnityObjects: []
     PrefabModifications: []
     SerializationNodes:
-    - Name: VarOut_ColumnHasActiveNibbs
-      Entry: 5
-      Data: true
-    - Name: VarOut_HasFallingNibbs
-      Entry: 5
-      Data: false
+    - Name: VarOut_ColumnState
+      Entry: 3
+      Data: 0
   prefabNibb: {fileID: 4060408366606812114, guid: ce5484a70a8368d489e4dd186cafec2f,
     type: 3}
   tNibbsHolder: {fileID: 3522487930376018853}
@@ -115,7 +112,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &8020593328663928459
 RectTransform:
   m_ObjectHideFlags: 0
@@ -225,8 +222,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 8
-  m_fontSizeBase: 8
+  m_fontSize: 5
+  m_fontSizeBase: 5
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18

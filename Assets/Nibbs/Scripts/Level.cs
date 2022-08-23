@@ -21,6 +21,7 @@ namespace Nibbs
         internal float LevelRadius { get; set; } = 0f;
         internal float NibbDefaultScaling { get; set; } = 0f;
         internal float HeightStartOffset { get; set; } = 0f;
+        internal float ColumnsDegree { get; set; } = 360f;
         internal List<List<int>> StaticLevelElements { get; set; } = new List<List<int>>();
     }
 
@@ -49,9 +50,10 @@ namespace Nibbs
                     levelData.NibbsColors = new List<NibbColor>() { NibbColor.Red, NibbColor.Yellow };
                     levelData.ColumnCount = 20;
                     levelData.DefaultColumnHeight = 5;
-                    levelData.LevelRadius = 1.6f;
-                    levelData.NibbDefaultScaling = 0.5f;
+                    levelData.LevelRadius = 3f;
+                    levelData.NibbDefaultScaling = 0.23f;
                     levelData.HeightStartOffset = 10f;
+                    levelData.ColumnsDegree = 90f;
                     break;
                 case 2:
                     levelData.NibbsColors = new List<NibbColor>() { NibbColor.Blue, NibbColor.Yellow };

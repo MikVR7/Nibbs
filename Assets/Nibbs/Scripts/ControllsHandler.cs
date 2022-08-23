@@ -1,7 +1,5 @@
 using UnityEngine;
-using UnityEngine.InputSystem.XR;
 using UnityEngine.XR.Interaction.Toolkit;
-using UnityEngine.XR.Interaction.Toolkit.Inputs;
 
 namespace Nibbs
 {
@@ -10,8 +8,7 @@ namespace Nibbs
         private static ControllsHandler Instance = null;
         internal static XRInteractionManager VarOut_XRInteractionManager() { return Instance.XRInteractionManager; }
         [SerializeField] private XRInteractionManager XRInteractionManager { get; set; } = null;
-
-
+        
         internal void Init()
         {
             Instance = this;

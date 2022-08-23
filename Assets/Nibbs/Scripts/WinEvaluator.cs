@@ -9,11 +9,13 @@ namespace Nibbs
     internal class WinEvaluator
     {
         internal static EventIn_EvaluateClickGroup EventIn_EvaluateClickGroup = new EventIn_EvaluateClickGroup();
+        internal EventIn_ResetPointsCount EventIn_ResetPointsCount = new EventIn_ResetPointsCount();
         private int pointsCount = 0;
 
         internal void Init()
         {
             EventIn_EvaluateClickGroup.AddListenerSingle(EvaluateClickGroup);
+            EventIn_ResetPointsCount.AddListenerSingle(ResetPointsCount);
         }
 
         private void EvaluateClickGroup(List<KeyValuePair<int, int>> nibbsToDestroy)
@@ -33,7 +35,14 @@ namespace Nibbs
                 });
                 LevelsHandler.EventIn_LetColumnsFall.Invoke(columnsToFall);
                 pointsCount += (nibbsToDestroy.Count * nibbsToDestroy.Count);
+                GUIHandler.EventIn_SetPointsCount.Invoke(pointsCount);
             }
+        }
+
+        private void ResetPointsCount()
+        {
+            pointsCount = 0;
+            GUIHandler.EventIn_SetPointsCount.Invoke(0);
         }
     }
 }

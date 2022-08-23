@@ -12,33 +12,33 @@ MonoBehaviour:
   m_Script: {fileID: 1726182683, guid: a4865f1ab4504ed8a368670db22f409c, type: 3}
   m_Name: AOTGenerationConfig
   m_EditorClassIdentifier: 
-  automateBeforeBuilds: 0
+  automateBeforeBuilds: 1
   deleteDllAfterBuilds: 1
   AutomateForAllAOTPlatforms: 1
   automateForPlatforms: 0900000014000000
-  lastScan: 637936881280091300
+  lastScan: 637965063923329234
   supportSerializedTypes:
-  - TypeName: System.Boolean, mscorlib
-    IsCustom: 0
-    Emit: 1
-  - TypeName: System.Collections.Generic.Dictionary`2[[Nibbs.NibbColor, Assembly-CSharp],[UnityEngine.Material,
+  - TypeName: System.Collections.Generic.Dictionary`2[[Nibbs.NibbColor, assembly_nibbs],[UnityEngine.Material,
       UnityEngine.CoreModule]], mscorlib
     IsCustom: 0
     Emit: 1
   - TypeName: System.Collections.Generic.EnumEqualityComparer`1[[Nibbs.NibbColor,
-      Assembly-CSharp]], mscorlib
+      assembly_nibbs]], mscorlib
     IsCustom: 0
     Emit: 1
-  - TypeName: System.Collections.Generic.IEqualityComparer`1[[Nibbs.NibbColor, Assembly-CSharp]],
+  - TypeName: System.Collections.Generic.IEqualityComparer`1[[Nibbs.NibbColor, assembly_nibbs]],
       mscorlib
     IsCustom: 0
     Emit: 1
   - TypeName: UnityEngine.Material, UnityEngine.CoreModule
     IsCustom: 0
     Emit: 1
-  - TypeName: Nibbs.Nibb+State, Assembly-CSharp
+  - TypeName: Nibbs.Nibb+State, assembly_nibbs
     IsCustom: 0
     Emit: 1
-  - TypeName: Nibbs.NibbColor, Assembly-CSharp
+  - TypeName: Nibbs.NibbColor, assembly_nibbs
+    IsCustom: 0
+    Emit: 1
+  - TypeName: Nibbs.NibbsColumn+ColumnState, assembly_nibbs
     IsCustom: 0
     Emit: 1

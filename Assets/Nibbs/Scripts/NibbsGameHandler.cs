@@ -7,14 +7,18 @@ namespace Nibbs
     {
         internal static EventOut_OnUpdate EventOut_OnUpdate = new EventOut_OnUpdate();
 
+        private static NibbsGameHandler Instance = null;
+
         [SerializeField] private LevelsHandler levelsHandler = null;
         [SerializeField] private ControllsHandler controllsHandler = null;
         [SerializeField] private GUIHandler guiHandler = null;
+        [SerializeField] private Transform tCamera = null;
 
         private CustomNibbsGrids customNibbsGrids = new CustomNibbsGrids();
         
         private void Awake()
         {
+            Instance = this;
             this.levelsHandler.Init();
             this.controllsHandler.Init();
             this.customNibbsGrids.Init();
@@ -44,6 +48,11 @@ namespace Nibbs
                     LevelsHandler.EventIn_StartLevel.Invoke();
                 }
             }
+        }
+
+        internal static float VarOut_GetMainCamRotationY()
+        {
+            return Instance.tCamera.eulerAngles.y;
         }
     }
 }

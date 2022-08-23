@@ -33,6 +33,7 @@ namespace Nibbs
         //[SerializeField] internal static bool VarOut_NibbsAreFalling { get; private set; } = false;
         //[SerializeField] internal static bool VarOut_WinEvaluationRunning { get; set; } = false;
         private Transform myTransform = null;
+        [SerializeField] private Transform tColumnsHolder = null;
         [SerializeField] private List<NibbsColumn> nibbsColumns = new List<NibbsColumn>();
         [SerializeField] private List<NibbsColumn> nibbsColumnsEmpty = new List<NibbsColumn>();
         private WinEvaluator winEvaluator = new WinEvaluator();
@@ -53,7 +54,7 @@ namespace Nibbs
             GUIHandler.EventOut_OnBtnStart.AddListenerSingle(OnBtnStart);
             VarOut_Level.Init();
             this.winEvaluator.Init();
-            this.columnShifter.Init();
+            this.columnShifter.Init(this.tColumnsHolder);
             this.SetText();
         }
 
@@ -72,15 +73,18 @@ namespace Nibbs
 
         private void SetupLevel(int levelNr) {
             VarOut_Level.EventIn_SetupLevel.Invoke(levelNr);
+            //columnShifter.EventIn_RotateLevel.Invoke(true, 0);
             this.CleanupPreviousLevel();
             this.CreateNibbsColumns();
             this.SetNibbsTypes();
+            columnShifter.EventIn_RotateLevel.Invoke(true, VarOut_Level.VarOut_GetLevel().ColumnCount);
             this.SetText();
         }
 
         private void StartLevel()
         {
             VarOut_LevelState = LevelState.FallingNibs;
+            winEvaluator.EventIn_ResetPointsCount.Invoke();
             this.nibbsColumns.ForEach(i => i.EventIn_StartLevel.Invoke());
             // TODO: Check if there are falling nibbs and set state
             this.SetText();
@@ -107,7 +111,7 @@ namespace Nibbs
             {
                 GameObject goColumn = Instantiate(this.prefabNibbsColumn);
                 NibbsColumn nibbsColumn = goColumn.GetComponent<NibbsColumn>();
-                nibbsColumn.Init(i, this.myTransform);
+                nibbsColumn.Init(i, tColumnsHolder);
                 this.nibbsColumns.Add(nibbsColumn);
             }
             this.SetText();
@@ -176,12 +180,12 @@ namespace Nibbs
                 List<ColumnShiftInstance> shiftInstances = new List<ColumnShiftInstance>();
                 this.nibbsColumns.ForEach(i => shiftInstances.Add(new ColumnShiftInstance()
                 {
-                    ColumnHasNibbs = (i.VarOut_ColumnState == NibbsColumn.ColumnState.Idle),
+                    ColumnHasNibbs = (i.VarOut_ColumnState == NibbsColumn.ColumnState.IdleHasNibbs),
                     TColumn = i.VarOut_MyTransform
 
                 }));
                 this.columnShifter.EventOut_ColumnShiftingDone.AddListenerSingle(ColumnShiftingDone);
-                this.columnShifter.EventIn_RotateColumns.Invoke(shiftInstances, 360f / LevelsHandler.VarOut_Level.VarOut_GetLevel().ColumnCount);
+                this.columnShifter.EventIn_RotateColumns.Invoke(shiftInstances);
             }
             this.SetText();
         }
@@ -190,9 +194,9 @@ namespace Nibbs
         {
             this.columnShifter.EventOut_ColumnShiftingDone.RemoveListener(ColumnShiftingDone);
             for(int i = this.nibbsColumns.Count-1; i >= 0; i--) {
-                if (this.nibbsColumns[i].VarOut_ColumnState == NibbsColumn.ColumnState.Deactivated)
+                if (this.nibbsColumns[i].VarOut_ColumnState == NibbsColumn.ColumnState.IdleNoNibbs)
                 {
-                    this.nibbsColumns[i].gameObject.SetActive(false);
+                    this.nibbsColumns[i].EventIn_DeactivateColumn.Invoke();
                     this.nibbsColumnsEmpty.Add(this.nibbsColumns[i]);
                     this.nibbsColumns.RemoveAt(i);
                 }
@@ -208,7 +212,6 @@ namespace Nibbs
 
 
         private void CheckIfThereAreGroupsLeft() {
-            Debug.Log("CHECK IF GROUPS ARE LEFT!");
             bool nibbHasSameColoredNeighbor = false;
             for (int i = 0; i < this.nibbsColumns.Count; i++)
             {
@@ -241,11 +244,11 @@ namespace Nibbs
             this.SetText();
         }
 
-        internal static List<List<Nibb.State>> VarOut_GetNibbsStatesGrid()
-        {
-            List<List<Nibb.State>> states = new List<List<Nibb.State>>();
-            Instance.nibbsColumns.ForEach(i => states.Add(i.VarOut_GetNibbsStatesGrid()));
-            return states;
-        }
+        //internal static List<List<Nibb.State>> VarOut_GetNibbsStatesGrid()
+        //{
+        //    List<List<Nibb.State>> states = new List<List<Nibb.State>>();
+        //    Instance.nibbsColumns.ForEach(i => states.Add(i.VarOut_GetNibbsStatesGrid()));
+        //    return states;
+        //}
     }
 }
