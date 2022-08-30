@@ -150,7 +150,7 @@ namespace Nibbs
             if (this.rotateLevel) {
                 float angleY = this.levelRotationYStart + ((this.levelRotateY - levelRotationYStart) * rotationPercent);
                 this.tColumnsHolder.localEulerAngles = new Vector3(tColumnsHolder.localEulerAngles.x, angleY, tColumnsHolder.localEulerAngles.z);
-                Debug.Log("ROTATE ANGLE Y: " + angleY + " " + levelRotationYStart + " " + this.levelRotateY + " (" + (levelRotationYStart - this.levelRotateY) + ")");
+                //Debug.Log("ROTATE ANGLE Y: " + angleY + " " + levelRotationYStart + " " + this.levelRotateY + " (" + (levelRotationYStart - this.levelRotateY) + ")");
             }
 
             if (animCurvePosition >= 1f)

@@ -43,5 +43,8 @@ namespace Nibbs
         // GUIHandler.cs
         internal class EventOut_OnBtnStart : EventSystem { }
         internal class EventIn_SetPointsCount : EventSystem<int> { }
+
+        // NibbsEffects.cs
+        internal class EventIn_PerformNibbsEffect : EventSystem<Vector3> { }
     }
 }

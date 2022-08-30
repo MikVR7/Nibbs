@@ -85,6 +85,7 @@ namespace Nibbs
         {
             VarOut_LevelState = LevelState.FallingNibs;
             winEvaluator.EventIn_ResetPointsCount.Invoke();
+
             this.nibbsColumns.ForEach(i => i.EventIn_StartLevel.Invoke());
             // TODO: Check if there are falling nibbs and set state
             this.SetText();

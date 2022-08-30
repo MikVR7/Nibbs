@@ -34,7 +34,7 @@ namespace Nibbs
         internal EventIn_SetColumnIndex EventIn_SetColumnIndex = new EventIn_SetColumnIndex();
         internal EventOut_NibbFinishedFalling EventOut_NibbFinishedFalling = new EventOut_NibbFinishedFalling();
 
-        [SerializeField] private Dictionary<NibbColor, Material> materials = new Dictionary<NibbColor, Material>();
+        //[SerializeField] private Dictionary<NibbColor, Material> materials = new Dictionary<NibbColor, Material>();
         [SerializeField] private List<Mesh> meshes = new List<Mesh>();
         //[SerializeField] private XRSimpleInteractable xrSimpleInteractable = null;
         [SerializeField] private TextMeshPro tmpText = null;
@@ -129,7 +129,7 @@ namespace Nibbs
 
         private void SetColor(NibbColor color) {
             this.VarOut_CurrentColor = color;
-            this.myRenderer.material = this.materials[this.VarOut_CurrentColor];
+            this.myRenderer.material = AssetsContainer.Instance.nibbsMaterials[this.VarOut_CurrentColor];// this.materials[this.VarOut_CurrentColor];
 
             this.SetRandomMesh();
         }
@@ -191,22 +191,36 @@ namespace Nibbs
             return nibbsToDestroy;
         }
 
+        private float countStartZeroVelocity = 0f;
         private void OnUpdate()
         {
             if(this.myRigidbody.isKinematic == false)
             {
-                if(this.myRigidbody.velocity.y < 0.01f)
+                if ((this.myRigidbody.velocity.y < 0.01f) && (countStartZeroVelocity <= 0.001f))
                 {
-                    this.neighbors.Clear();
-                    this.neighborGround = null;
-                    this.ShootRay(this.VarOut_MyTransform.TransformDirection(Vector3.down),this.scaling * 0.501f, false, true);
-                    if ((this.neighbors.Count > 0) && this.neighbors[0].VarOut_CurrentState.Equals(State.Idle))
+                    countStartZeroVelocity = Time.realtimeSinceStartup;
+                }
+                else if((this.myRigidbody.velocity.y > 0.01f) && (countStartZeroVelocity > 0f))
+                {
+                    countStartZeroVelocity = 0f;
+                }
+
+                if(this.countStartZeroVelocity > 0.001f) {
+                    float duration = Time.realtimeSinceStartup - countStartZeroVelocity;
+                    if (duration > 0.3f)
                     {
-                        StartCoroutine(NibbStoppedFallingDelayed());
-                    }
-                    else if((this.indexInColumn == 0) && (this.neighborGround != null))
-                    {
-                        StartCoroutine(NibbStoppedFallingDelayed());
+                        this.countStartZeroVelocity = 0f;
+                        this.neighbors.Clear();
+                        this.neighborGround = null;
+                        this.ShootRay(this.VarOut_MyTransform.TransformDirection(Vector3.down), this.scaling * 0.501f, false, true);
+                        if ((this.neighbors.Count > 0) && this.neighbors[0].VarOut_CurrentState.Equals(State.Idle))
+                        {
+                            StartCoroutine(NibbStoppedFallingDelayed());
+                        }
+                        else if ((this.indexInColumn == 0) && (this.neighborGround != null))
+                        {
+                            StartCoroutine(NibbStoppedFallingDelayed());
+                        }
                     }
                 }
             }

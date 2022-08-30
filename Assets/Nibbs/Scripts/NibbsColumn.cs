@@ -30,6 +30,7 @@ namespace Nibbs
         [SerializeField] private Transform tNibbsHolder = null;
         [SerializeField] private List<Nibb> nibbs = new List<Nibb>();
         [SerializeField] private List<Nibb> nibbsDestroyed = new List<Nibb>();
+        [SerializeField] private List<NibbsEffect> nibbExplosions = new List<NibbsEffect>();
         [SerializeField] private TextMeshPro tmpText = null;
         internal Transform VarOut_MyTransform { get; private set; } = null;
         [SerializeField] internal ColumnState VarOut_ColumnState { get; private set; } = ColumnState.Inited;
@@ -114,9 +115,9 @@ namespace Nibbs
             DetermineCurrentState();
         }
 
-
         private void DestroyNibb(int columnNr, int indexInColumn)
         {
+            EffectsHandler.EventIn_PerformNibbsEffect.Invoke(this.nibbs[indexInColumn].VarOut_MyTransform.position);
             this.nibbs[indexInColumn].EventIn_SetNibbState.Invoke(Nibb.State.Destroyed);
             DetermineCurrentState();
             this.SetText();
