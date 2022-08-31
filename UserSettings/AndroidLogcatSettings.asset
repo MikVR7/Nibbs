@@ -3,7 +3,7 @@
     "m_SelectedPackage": {
         "deviceId": "1PASH9AC9R9133",
         "name": "com.Tokele.VRTestProject",
-        "processId": 16085,
+        "processId": 28903,
         "exited": false
     },
     "m_SelectedPriority": 0,
@@ -96,6 +96,12 @@
             "deviceId": "1PASH9AC9R9133",
             "name": "com.Tokele.VRTestProject",
             "processId": 16085,
+            "exited": false
+        },
+        {
+            "deviceId": "1PASH9AC9R9133",
+            "name": "com.Tokele.VRTestProject",
+            "processId": 28903,
             "exited": false
         }
     ],
