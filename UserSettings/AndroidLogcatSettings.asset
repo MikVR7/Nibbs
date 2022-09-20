@@ -3,7 +3,7 @@
     "m_SelectedPackage": {
         "deviceId": "1PASH9AC9R9133",
         "name": "com.Tokele.VRTestProject",
-        "processId": 28903,
+        "processId": 7428,
         "exited": false
     },
     "m_SelectedPriority": 0,
@@ -11,97 +11,55 @@
         {
             "deviceId": "1PASH9AC9R9133",
             "name": "com.Tokele.VRTestProject",
-            "processId": 4563,
-            "exited": true
-        },
-        {
-            "deviceId": "1PASH9AC9R9133",
-            "name": "com.Tokele.VRTestProject",
-            "processId": 5032,
-            "exited": true
-        },
-        {
-            "deviceId": "1PASH9AC9R9133",
-            "name": "com.Tokele.VRTestProject",
-            "processId": 5679,
-            "exited": true
-        },
-        {
-            "deviceId": "1PASH9AC9R9133",
-            "name": "com.Tokele.VRTestProject",
-            "processId": 6083,
-            "exited": true
-        },
-        {
-            "deviceId": "1PASH9AC9R9133",
-            "name": "com.oculus.shellenv",
-            "processId": 1998,
-            "exited": false
-        },
-        {
-            "deviceId": "1PASH9AC9R9133",
-            "name": "com.Tokele.VRTestProject",
-            "processId": 27961,
-            "exited": false
-        },
-        {
-            "deviceId": "1PASH9AC9R9133",
-            "name": "com.Tokele.VRTestProject",
-            "processId": 28736,
-            "exited": false
-        },
-        {
-            "deviceId": "1PASH9AC9R9133",
-            "name": "com.Tokele.VRTestProject",
-            "processId": 29335,
-            "exited": false
-        },
-        {
-            "deviceId": "1PASH9AC9R9133",
-            "name": "com.Tokele.VRTestProject",
-            "processId": 29793,
-            "exited": false
-        },
-        {
-            "deviceId": "1PASH9AC9R9133",
-            "name": "com.Tokele.VRTestProject",
-            "processId": 30358,
-            "exited": false
-        },
-        {
-            "deviceId": "1PASH9AC9R9133",
-            "name": "com.Tokele.VRTestProject",
-            "processId": 30794,
-            "exited": false
-        },
-        {
-            "deviceId": "1PASH9AC9R9133",
-            "name": "com.Tokele.VRTestProject",
-            "processId": 31291,
-            "exited": false
-        },
-        {
-            "deviceId": "1PASH9AC9R9133",
-            "name": "com.Tokele.VRTestProject",
-            "processId": 1510,
-            "exited": false
-        },
-        {
-            "deviceId": "1PASH9AC9R9133",
-            "name": "com.Tokele.VRTestProject",
             "processId": 15449,
-            "exited": false
+            "exited": true
         },
         {
             "deviceId": "1PASH9AC9R9133",
             "name": "com.Tokele.VRTestProject",
             "processId": 16085,
-            "exited": false
+            "exited": true
         },
         {
             "deviceId": "1PASH9AC9R9133",
             "name": "com.Tokele.VRTestProject",
             "processId": 28903,
+            "exited": true
+        },
+        {
+            "deviceId": "1PASH9AC9R9133",
+            "name": "com.Tokele.VRTestProject",
+            "processId": 10458,
+            "exited": true
+        },
+        {
+            "deviceId": "1PASH9AC9R9133",
+            "name": "com.oculus.shellenv",
+            "processId": 2090,
+            "exited": false
+        },
+        {
+            "deviceId": "1PASH9AC9R9133",
+            "name": "com.Tokele.VRTestProject",
+            "processId": 4386,
+            "exited": false
+        },
+        {
+            "deviceId": "1PASH9AC9R9133",
+            "name": "com.Tokele.VRTestProject",
+            "processId": 5431,
+            "exited": false
+        },
+        {
+            "deviceId": "1PASH9AC9R9133",
+            "name": "com.Tokele.VRTestProject",
+            "processId": 6396,
+            "exited": false
+        },
+        {
+            "deviceId": "1PASH9AC9R9133",
+            "name": "com.Tokele.VRTestProject",
+            "processId": 7428,
             "exited": false
         }
     ],

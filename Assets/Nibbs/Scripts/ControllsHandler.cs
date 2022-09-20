@@ -12,7 +12,7 @@ namespace Nibbs
         internal void Init()
         {
             Instance = this;
-            NibbsGameHandler.EventOut_OnUpdate.AddListener(OnUpdate);
+            NibbsGameHandler.EventOut_OnUpdate.AddListenerSingle(OnUpdate);
         }
 
         private void OnUpdate()
@@ -20,6 +20,23 @@ namespace Nibbs
             if(Input.GetKeyDown(KeyCode.LeftControl) && Input.GetKeyUp(KeyCode.J))
             {
 
+            }
+
+            if (Input.GetMouseButtonDown(0))
+            {
+                Camera cam = CamerasHandler.VarOut_CurrentMainCamera;
+                if (cam != null)
+                {
+                    RaycastHit hitInfo = new RaycastHit();
+                    if (Physics.Raycast(cam.ScreenPointToRay(Input.mousePosition), out hitInfo) && hitInfo.transform.tag == "NibbsCharacter")
+                    {
+                        Nibb nibb = hitInfo.transform.GetComponent<Nibb>();
+                        if(nibb != null)
+                        {
+                            nibb.OnClickNibb(null);
+                        }
+                    }
+                }
             }
         }
     }

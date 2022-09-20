@@ -16,7 +16,7 @@ MonoBehaviour:
   deleteDllAfterBuilds: 1
   AutomateForAllAOTPlatforms: 1
   automateForPlatforms: 0900000014000000
-  lastScan: 637975814128193103
+  lastScan: 637987057699660744
   supportSerializedTypes:
   - TypeName: System.Collections.Generic.Dictionary`2[[Nibbs.NibbColor, assembly_nibbs],[UnityEngine.Material,
       UnityEngine.CoreModule]], mscorlib

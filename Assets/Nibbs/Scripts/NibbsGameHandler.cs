@@ -14,6 +14,7 @@ namespace Nibbs
         [SerializeField] private GUIHandler guiHandler = null;
         [SerializeField] private Transform tCamera = null;
         [SerializeField] private EffectsHandler effectsHandler = null;
+        [SerializeField] private CamerasHandler camerasHandler = null;
 
         private CustomNibbsGrids customNibbsGrids = new CustomNibbsGrids();
         
@@ -25,6 +26,7 @@ namespace Nibbs
             this.customNibbsGrids.Init();
             this.guiHandler.Init();
             this.effectsHandler.Init();
+            this.camerasHandler.Init();
         }
 
         private void Update()
